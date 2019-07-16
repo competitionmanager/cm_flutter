@@ -1,3 +1,4 @@
+import 'package:cm_flutter/screens/view_teams_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -7,7 +8,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'CM',
-      home: HomeScreen(),
+      home: ViewTeamsScreen(),
     );
   }
 }
