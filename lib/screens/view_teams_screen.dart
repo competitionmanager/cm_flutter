@@ -2,7 +2,7 @@ import 'package:cm_flutter/test_options_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:http/http.dart' as http;
+import 'package:uuid/uuid.dart';
 
 
 class ViewTeamsScreen extends StatefulWidget {
@@ -69,27 +69,26 @@ class _ViewTeamsScreenState extends State<ViewTeamsScreen> {
     );
   }
 
-
-
   void addData() {
+    Uuid uuid = Uuid();
     CollectionReference teamsRef = db.collection('teams');
-    teamsRef.document('projectd123123').setData({
+    teamsRef.document(uuid.v4()).setData({
       'name': 'Project D',
       'bio': 'The Best team in the world.'
     });
-    teamsRef.document('wannabes123123').setData({
+    teamsRef.document(uuid.v4()).setData({
       'name': 'Wannabes',
       'bio': 'We\'re the bees!!'
     });
-    teamsRef.document('them123').setData({
+    teamsRef.document(uuid.v4()).setData({
       'name': 'THEM',
       'bio': 'The worst team in the world.'
     });
-    teamsRef.document('arc123').setData({
+    teamsRef.document(uuid.v4()).setData({
       'name': 'ARC', 
       'bio': 'A Rhythm Company'
     });
-    teamsRef.document('stuy123').setData({
+    teamsRef.document(uuid.v4()).setData({
       'name': 'Stuy Legacy',
       'bio': 'We\'re the youngins'
     });
@@ -97,15 +96,5 @@ class _ViewTeamsScreenState extends State<ViewTeamsScreen> {
 
   void deleteData(DocumentSnapshot doc) async {
     await db.collection('teams').document(doc.documentID).delete();
-  }
-
-  void printResponse() async {
-    String text = 'This is a text from flutter.';
-    String url = 'https://us-central1-cmfirebase-17373.cloudfunctions.net/addMessage?text=$text';
-
-    final response = await http.get(Uri.parse(url));
-    print(response.body);
-    print(response.statusCode);
-    print(response.reasonPhrase);
   }
 }
