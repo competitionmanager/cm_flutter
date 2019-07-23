@@ -1,9 +1,12 @@
+import 'package:cm_flutter/firebase/firestore_provider.dart';
+import 'package:cm_flutter/models/team.dart';
+import 'package:cm_flutter/screens/view_team_screen.dart';
 import 'package:cm_flutter/test_options_drawer.dart';
+import 'package:cm_flutter/widgets/top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:uuid/uuid.dart';
-
 
 class ViewTeamsScreen extends StatefulWidget {
   @override
@@ -11,14 +14,14 @@ class ViewTeamsScreen extends StatefulWidget {
 }
 
 class _ViewTeamsScreenState extends State<ViewTeamsScreen> {
-  final db = Firestore.instance;
+  FirestoreProvider db = FirestoreProvider();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'CM',
+          'View Teams',
           style: TextStyle(color: Colors.black),
         ),
         backgroundColor: Color.fromRGBO(255, 255, 255, 0.85),
@@ -30,18 +33,16 @@ class _ViewTeamsScreenState extends State<ViewTeamsScreen> {
             child: IconButton(
               icon: Icon(Icons.add),
               onPressed: () {
-                addData();
-                // printResponse();
+                db.addTeams();
               },
             ),
           )
         ],
       ),
-      drawer: TestOptionsDrawer(),
       body: StreamBuilder(
-        stream: db.collection('teams').orderBy('name').snapshots(),
+        stream: db.getTeams(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return Text('Loading...');
+          if (!snapshot.hasData) return CircularProgressIndicator();
           return ListView.builder(
             itemCount: snapshot.data.documents.length,
             itemBuilder: (context, index) {
@@ -54,47 +55,26 @@ class _ViewTeamsScreenState extends State<ViewTeamsScreen> {
   }
 
   ListTile buildItem(DocumentSnapshot doc) {
+    Team team = Team.fromMap(doc.data);
+
     return ListTile(
-      title: Text(doc.data['name']),
-      subtitle: Text(doc.data['bio']),
+      title: Text(team.name),
+      subtitle: Text(team.bio),
       trailing: IconButton(
         icon: Icon(
           Icons.delete_forever,
           color: Colors.black,
         ),
         onPressed: () {
-          deleteData(doc);
+          db.deleteTeam(team.id);
         },
       ),
+      onTap: () {
+        Route route = MaterialPageRoute(
+          builder: (BuildContext context) => ViewTeamScreen(teamId: team.id),
+        );
+        Navigator.of(context).push(route);
+      },
     );
-  }
-
-  void addData() {
-    Uuid uuid = Uuid();
-    CollectionReference teamsRef = db.collection('teams');
-    teamsRef.document(uuid.v4()).setData({
-      'name': 'Project D',
-      'bio': 'The Best team in the world.'
-    });
-    teamsRef.document(uuid.v4()).setData({
-      'name': 'Wannabes',
-      'bio': 'We\'re the bees!!'
-    });
-    teamsRef.document(uuid.v4()).setData({
-      'name': 'THEM',
-      'bio': 'The worst team in the world.'
-    });
-    teamsRef.document(uuid.v4()).setData({
-      'name': 'ARC', 
-      'bio': 'A Rhythm Company'
-    });
-    teamsRef.document(uuid.v4()).setData({
-      'name': 'Stuy Legacy',
-      'bio': 'We\'re the youngins'
-    });
-  }
-
-  void deleteData(DocumentSnapshot doc) async {
-    await db.collection('teams').document(doc.documentID).delete();
   }
 }
