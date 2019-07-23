@@ -1,3 +1,5 @@
+import 'package:cm_flutter/screens/create_team_screen.dart';
+import 'package:cm_flutter/screens/view_teams_screen.dart';
 import 'package:flutter/material.dart';
 
 class TestOptionsDrawer extends StatelessWidget {
@@ -18,16 +20,32 @@ class TestOptionsDrawer extends StatelessWidget {
             SizedBox(height: 16.0),
             ListTile(
               title: Text(
-                'Reset database',
+                'Create Teams',
                 style: TextStyle(
                   fontSize: 24.0
                 ),
               ),
               onTap: () {
                 Route route = MaterialPageRoute(
-                  // builder: (BuildContext context) => TestTeamScreen()
+                  builder: (BuildContext context) => CreateTeamScreen()
                 );
-                Navigator.of(context).pushReplacement(route);
+                Navigator.of(context).pop(route);
+                Navigator.of(context).push(route);
+              },
+            ),
+            ListTile(
+              title: Text(
+                'View Teams',
+                style: TextStyle(
+                  fontSize: 24.0
+                ),
+              ),
+              onTap: () {
+                Route route = MaterialPageRoute(
+                  builder: (BuildContext context) => ViewTeamsScreen()
+                );
+                Navigator.of(context).pop(route);
+                Navigator.of(context).push(route);
               },
             ),
           ],
