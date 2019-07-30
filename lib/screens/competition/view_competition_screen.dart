@@ -16,7 +16,7 @@ class ViewCompetitionScreen extends StatefulWidget {
 class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   FirestoreProvider db;
   Competition competition;
-  
+
   @override
   void initState() {
     super.initState();
@@ -67,7 +67,8 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
           icon: Icon(Icons.edit),
           onPressed: () {
             Route route = MaterialPageRoute(
-              builder: (BuildContext context) => EditCompetitionScreen(competition: competition),
+              builder: (BuildContext context) =>
+                  EditCompetitionScreen(competition: competition),
             );
             Navigator.of(context).pushReplacement(route);
           },
@@ -78,31 +79,50 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
 
   Widget _buildScreen(DocumentSnapshot doc) {
     competition = Competition.fromMap(doc.data);
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            doc['name'],
-            style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          doc['name'],
+          style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 4.0),
+        Text(
+          'by ${doc['organizer']}',
+          style: TextStyle(
+            fontSize: 24.0,
+            color: Color.fromRGBO(0, 0, 0, 0.4),
           ),
-          SizedBox(height: 8.0),
-          Text(
-            doc['location'],
-            style: TextStyle(
-              fontSize: 24.0,
+        ),
+        SizedBox(height: 12.0),
+        Row(
+          children: <Widget>[
+            Icon(
+              Icons.calendar_today,
+              color: Colors.black45,
             ),
-          ),
-          SizedBox(height: 15.0),
-          Text(
-            'Hosted by ${doc['organizer']}',
-            style: TextStyle(
-              fontSize: 18.0,
-              color: Color.fromRGBO(0, 0, 0, 0.4),
+            SizedBox(width: 8.0),
+            Text(
+              doc['date'],
+              style: TextStyle(fontSize: 18.0, color: Colors.black87),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+        SizedBox(height: 8.0),
+        Row(
+          children: <Widget>[
+            Icon(
+              Icons.location_on,
+              color: Colors.black45,
+            ),
+            SizedBox(width: 8.0),
+            Text(
+              doc['location'],
+              style: TextStyle(fontSize: 18.0),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
