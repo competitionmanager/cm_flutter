@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 
 class FirestoreProvider {
   Firestore firestore = Firestore.instance;
-    Uuid uuid = Uuid();
+  Uuid uuid = Uuid();
 
   Stream<QuerySnapshot> getTeams() {
     return firestore.collection('teams').snapshots();
@@ -32,7 +32,6 @@ class FirestoreProvider {
     });
     return id;
   }
-
 
   void addTeams() {
     CollectionReference teamsRef = firestore.collection('teams');
@@ -68,4 +67,33 @@ class FirestoreProvider {
       'id': id,
     });
   }
+
+  Stream<DocumentSnapshot> getCompetition(String compId) {
+    return firestore.collection('competitions').document(compId).snapshots();
+  }
+
+  Stream<QuerySnapshot> getCompetitions() {
+    return firestore.collection('competitions').snapshots();
+  }
+
+  void updateCompetition(String compId, Map<String, dynamic> data) {
+    firestore.collection('competitions').document(compId).updateData(data);
+  }
+
+  void deleteCompetition(String compId) {
+    firestore.collection('competitions').document(compId).delete();
+  }
+
+  String addCompetition(String name, String organizer, String location) {
+    CollectionReference teamsRef = firestore.collection('competitions');
+    String id = uuid.v4();
+    teamsRef.document(id).setData({
+      'id': id,
+      'name': name,
+      'organizer': organizer,
+      'location': location,
+    });
+    return id;
+  }
+  
 }

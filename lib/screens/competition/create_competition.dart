@@ -1,21 +1,26 @@
 import 'package:cm_flutter/firebase/firestore_provider.dart';
-import 'package:cm_flutter/screens/view_team_screen.dart';
+import 'package:cm_flutter/screens/competition/view_competition_screen.dart';
 import 'package:flutter/material.dart';
 
-class CreateTeamScreen extends StatefulWidget {
+class CreateCompetitionScreen extends StatefulWidget {
   @override
-  _CreateTeamScreenState createState() => _CreateTeamScreenState();
+  _CreateCompetitionScreenState createState() =>
+      _CreateCompetitionScreenState();
 }
 
-class _CreateTeamScreenState extends State<CreateTeamScreen> {
+class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
   FirestoreProvider db;
-  TextEditingController teamNameController;
+  TextEditingController competitionNameController;
+  TextEditingController organizerController;
+  TextEditingController locationController;
 
   @override
   void initState() {
     super.initState();
     db = FirestoreProvider();
-    teamNameController = TextEditingController();
+    competitionNameController = TextEditingController();
+    organizerController = TextEditingController();
+    locationController = TextEditingController();
   }
 
   @override
@@ -51,16 +56,17 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
       height: 48.0,
       child: RaisedButton(
         child: Text(
-          'Create Team',
+          'Create Competition',
           style: TextStyle(color: Colors.white),
         ),
         color: Colors.green,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         onPressed: () {
-          String id = db.addTeam(teamNameController.text);
+          String id = db.addCompetition(competitionNameController.text,
+              organizerController.text, locationController.text);
 
           Route route = MaterialPageRoute(
-            builder: (BuildContext context) => ViewTeamScreen(teamId: id),
+            builder: (BuildContext context) => ViewCompetitionScreen(compId: id),
           );
           Navigator.of(context).pushReplacement(route);
         },
@@ -68,24 +74,45 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
     );
   }
 
+  // void _selectDate() async {
+  //   DateTime date = await showDatePicker(
+  //       context: context,
+  //       initialDate: DateTime.now(),
+  //       firstDate: DateTime(2016),
+  //       lastDate: DateTime(2020)
+  //   );
+
+  //   if(date != null) setState(() => _value = date);
+  // }
+
   // Builds the description text and the text field.
   Column buildCreateForm() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        Text(
-          'Create a team',
-          style: TextStyle(
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
+        TextField(
+          controller: competitionNameController,
+          decoration: InputDecoration(
+            labelText: 'Competition Name',
+            icon: Icon(Icons.event),
           ),
         ),
         SizedBox(height: 16.0),
-        Text('What is the name of your team?'),
-        SizedBox(height: 16.0),
         TextField(
-          controller: teamNameController,
-        )
+          controller: organizerController,
+          decoration: InputDecoration(
+            labelText: 'Organizer',
+            icon: Icon(Icons.person),
+          ),
+        ),
+        SizedBox(height: 8.0),
+        TextField(
+          controller: locationController,
+          decoration: InputDecoration(
+            labelText: 'Location',
+            icon: Icon(Icons.location_on),
+          ),
+        ),
       ],
     );
   }
@@ -93,7 +120,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
   AppBar buildAppBar() {
     return AppBar(
       title: Text(
-        'Create Team',
+        'Create Competition',
         style: TextStyle(color: Colors.black),
       ),
       backgroundColor: Color.fromRGBO(255, 255, 255, 0.85),
