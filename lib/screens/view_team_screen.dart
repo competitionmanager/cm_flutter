@@ -5,6 +5,7 @@ import 'package:cm_flutter/screens/edit_team_screen.dart';
 import 'package:flutter/material.dart';
 
 class ViewTeamScreen extends StatelessWidget {
+  FirestoreProvider db = FirestoreProvider();
   final String teamId;
   Team team;
 
@@ -12,8 +13,6 @@ class ViewTeamScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FirestoreProvider db = FirestoreProvider();
-
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -21,27 +20,7 @@ class ViewTeamScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.arrow_back_ios),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.edit),
-                    onPressed: () {
-                      Route route = MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            EditTeamScreen(team: team),
-                      );
-                      Navigator.of(context).pushReplacement(route);
-                    },
-                  )
-                ],
-              ),
+              buildAppBar(context),
               StreamBuilder(
                 stream: db.getTeam(teamId),
                 builder: (context, snapshot) {
@@ -56,6 +35,29 @@ class ViewTeamScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Row buildAppBar(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        IconButton(
+          icon: Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.edit),
+          onPressed: () {
+            Route route = MaterialPageRoute(
+              builder: (BuildContext context) => EditTeamScreen(team: team),
+            );
+            Navigator.of(context).pushReplacement(route);
+          },
+        )
+      ],
     );
   }
 

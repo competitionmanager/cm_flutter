@@ -1,12 +1,8 @@
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/team.dart';
 import 'package:cm_flutter/screens/view_team_screen.dart';
-import 'package:cm_flutter/test_options_drawer.dart';
-import 'package:cm_flutter/widgets/top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import 'package:uuid/uuid.dart';
 
 class ViewTeamsScreen extends StatefulWidget {
   @override
@@ -19,26 +15,7 @@ class _ViewTeamsScreenState extends State<ViewTeamsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'View Teams',
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: Color.fromRGBO(255, 255, 255, 0.85),
-        elevation: 1.0,
-        iconTheme: IconThemeData(color: Colors.black),
-        actions: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                db.addTeams();
-              },
-            ),
-          )
-        ],
-      ),
+      appBar: buildAppBar(),
       body: StreamBuilder(
         stream: db.getTeams(),
         builder: (context, snapshot) {
@@ -51,6 +28,29 @@ class _ViewTeamsScreenState extends State<ViewTeamsScreen> {
           );
         },
       ),
+    );
+  }
+
+  AppBar buildAppBar() {
+    return AppBar(
+      title: Text(
+        'View Teams',
+        style: TextStyle(color: Colors.black),
+      ),
+      backgroundColor: Color.fromRGBO(255, 255, 255, 0.85),
+      elevation: 1.0,
+      iconTheme: IconThemeData(color: Colors.black),
+      actions: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(right: 16.0),
+          child: IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              db.addTeams();
+            },
+          ),
+        )
+      ],
     );
   }
 
