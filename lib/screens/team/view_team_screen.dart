@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/team.dart';
-import 'package:cm_flutter/screens/edit_team_screen.dart';
+import 'package:cm_flutter/screens/team/edit_team_screen.dart';
 import 'package:flutter/material.dart';
 
 class ViewTeamScreen extends StatelessWidget {

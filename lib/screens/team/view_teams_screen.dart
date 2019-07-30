@@ -1,6 +1,6 @@
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/team.dart';
-import 'package:cm_flutter/screens/view_team_screen.dart';
+import 'package:cm_flutter/screens/team/view_team_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
