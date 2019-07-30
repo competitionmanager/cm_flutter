@@ -30,48 +30,7 @@ class _EditTeamScreenState extends State<EditTeamScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            Route route = MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  ViewTeamScreen(teamId: widget.team.id),
-            );
-            Navigator.of(context).pushReplacement(route);
-          },
-        ),
-        title: Text(
-          'Edit Team',
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: Color.fromRGBO(255, 255, 255, 0.85),
-        elevation: 1.0,
-        iconTheme: IconThemeData(color: Colors.black),
-        actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: IconButton(
-              icon: Icon(
-                Icons.check,
-                size: 32.0,
-              ),
-              onPressed: () {
-                Map<String, dynamic> data = {
-                  'name': teamNameController.text,
-                  'bio': teamBioController.text
-                };
-                db.updateTeam(widget.team.id, data);
-                Route route = MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      ViewTeamScreen(teamId: widget.team.id),
-                );
-                Navigator.of(context).pushReplacement(route);
-              },
-            ),
-          )
-        ],
-      ),
+      appBar: buildAppBar(context),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(32.0),
@@ -94,26 +53,74 @@ class _EditTeamScreenState extends State<EditTeamScreen> {
               SizedBox(
                 height: 32.0,
               ),
-              SizedBox(
-                width: double.infinity,
-                height: 48.0,
-                child: RaisedButton(
-                  child: Text(
-                    'Delete Team',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  color: Colors.red,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0)),
-                  onPressed: () {
-                    db.deleteTeam(widget.team.id);
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
+              buildDeleteButton(context),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  AppBar buildAppBar(BuildContext context) {
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back_ios),
+        onPressed: () {
+          Route route = MaterialPageRoute(
+            builder: (BuildContext context) =>
+                ViewTeamScreen(teamId: widget.team.id),
+          );
+          Navigator.of(context).pushReplacement(route);
+        },
+      ),
+      title: Text(
+        'Edit Team',
+        style: TextStyle(color: Colors.black),
+      ),
+      backgroundColor: Color.fromRGBO(255, 255, 255, 0.85),
+      elevation: 1.0,
+      iconTheme: IconThemeData(color: Colors.black),
+      actions: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: IconButton(
+            icon: Icon(
+              Icons.check,
+              size: 32.0,
+            ),
+            onPressed: () {
+              Map<String, dynamic> data = {
+                'name': teamNameController.text,
+                'bio': teamBioController.text
+              };
+              db.updateTeam(widget.team.id, data);
+              Route route = MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    ViewTeamScreen(teamId: widget.team.id),
+              );
+              Navigator.of(context).pushReplacement(route);
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  SizedBox buildDeleteButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 48.0,
+      child: RaisedButton(
+        child: Text(
+          'Delete Team',
+          style: TextStyle(color: Colors.white),
+        ),
+        color: Colors.red,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+        onPressed: () {
+          db.deleteTeam(widget.team.id);
+          Navigator.of(context).pop();
+        },
       ),
     );
   }
