@@ -10,6 +10,7 @@ class Competition {
     String organizer;
     String location;
     String date;
+    String description;
 
     Competition({
         this.id,
@@ -17,6 +18,7 @@ class Competition {
         this.organizer,
         this.location,
         this.date,
+        this.description,
     });
 
     factory Competition.fromMap(Map<String, dynamic> json) => Competition(
@@ -24,7 +26,8 @@ class Competition {
         name: json["name"],
         organizer: json["organizer"],
         location: json["location"],
-        date: json["date"]
+        date: json["date"],
+        description: json["description"]
     );
 
     Map<String, dynamic> toMap() => {
@@ -32,7 +35,8 @@ class Competition {
         "name": name,
         "organizer": organizer,
         "location": location,
-        "date": date
+        "date": date,
+        "description": description
     };
 
     String toString() {
@@ -43,6 +47,7 @@ class Competition {
       output += 'organizer: $organizer\n';
       output += 'location: $location\n';
       output += 'date: $date\n';
+      output += 'description: $description\n';
       output += '}\n';
       return output;
     }

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/screens/competition/edit_competition_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ViewCompetitionScreen extends StatefulWidget {
@@ -86,42 +87,52 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
           doc['name'],
           style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 4.0),
+        SizedBox(height: 12.0),
         Text(
           'by ${doc['organizer']}',
           style: TextStyle(
-            fontSize: 24.0,
-            color: Color.fromRGBO(0, 0, 0, 0.4),
+            fontSize: 18.0,
+            color: Colors.blue,
           ),
         ),
-        SizedBox(height: 12.0),
+        SizedBox(height: 32.0),
         Row(
           children: <Widget>[
             Icon(
-              Icons.calendar_today,
-              color: Colors.black45,
+              Icons.date_range,
+              color: Colors.black87,
+              size: 28.0,
             ),
-            SizedBox(width: 8.0),
+            SizedBox(width: 16.0),
             Text(
               doc['date'],
-              style: TextStyle(fontSize: 18.0, color: Colors.black87),
+              style: TextStyle(fontSize: 18.0),
             ),
           ],
         ),
-        SizedBox(height: 8.0),
+        SizedBox(height: 16.0),
         Row(
           children: <Widget>[
             Icon(
               Icons.location_on,
-              color: Colors.black45,
+              color: Colors.black87,
+              size: 28.0,
             ),
-            SizedBox(width: 8.0),
+            SizedBox(width: 16.0),
             Text(
               doc['location'],
               style: TextStyle(fontSize: 18.0),
             ),
           ],
         ),
+        SizedBox(height: 32.0),
+        Text(
+          'Description',
+          style: TextStyle(
+            fontSize: 24.0,
+            fontWeight: FontWeight.bold,
+          ),
+        )
       ],
     );
   }
