@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cm_flutter/models/team.dart';
 import 'package:uuid/uuid.dart';
 
 class FirestoreProvider {
@@ -94,6 +93,29 @@ class FirestoreProvider {
       'location': location,
     });
     return id;
+  }
+
+  void addDummyCompetition() {
+    CollectionReference compsRef = firestore.collection('competitions');
+    
+    String id = uuid.v4();
+    compsRef.document(id).setData({
+      'id': id,
+      'name': 'Prelude East Coast 2019',
+      'organizer': 'Project D Dance Company',
+      'description': 'Prelude EC, hosted by Project D, is one of the biggest dance competitions in the NY/NJ dance community.',
+      'date': 'Sat, December 10th, 2019',
+      'location': 'Sacaucus, New Jersey',
+    });
+    id = uuid.v4();
+    compsRef.document(id).setData({
+      'id': id,
+      'name': 'Reign or Shine 2019',
+      'organizer': 'NJIT ',
+      'description': 'Prelude EC, hosted by Project D, is one of the biggest dance competitions in the NY/NJ dance community.',
+      'date': 'Sat, December 10th, 2019',
+      'location': 'Sacaucus, New Jersey',
+    });
   }
   
 }
