@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 
 class FirestoreProvider {
@@ -34,7 +37,7 @@ class FirestoreProvider {
 
   void addTeams() {
     CollectionReference teamsRef = firestore.collection('teams');
-    
+
     String id = uuid.v4();
     teamsRef.document(id).setData({
       'name': 'Project D',
@@ -55,7 +58,7 @@ class FirestoreProvider {
     });
     id = uuid.v4();
     teamsRef.document(id).setData({
-      'name': 'ARC', 
+      'name': 'ARC',
       'bio': 'A Rhythm Company',
       'id': id,
     });
@@ -97,13 +100,14 @@ class FirestoreProvider {
 
   void addDummyCompetition() {
     CollectionReference compsRef = firestore.collection('competitions');
-    
+
     String id = uuid.v4();
     compsRef.document(id).setData({
       'id': id,
       'name': 'Prelude East Coast 2019',
       'organizer': 'Project D Dance Company',
-      'description': 'Prelude EC, hosted by Project D, is one of the biggest dance competitions in the NY/NJ dance community.',
+      'description':
+          'Prelude EC, hosted by Project D, is one of the biggest dance competitions in the NY/NJ dance community.',
       'date': 'Sat, December 10th, 2019',
       'location': 'Sacaucus, New Jersey',
     });
@@ -112,10 +116,32 @@ class FirestoreProvider {
       'id': id,
       'name': 'Reign or Shine 2019',
       'organizer': 'NJIT ',
-      'description': 'Prelude EC, hosted by Project D, is one of the biggest dance competitions in the NY/NJ dance community.',
+      'description':
+          'Prelude EC, hosted by Project D, is one of the biggest dance competitions in the NY/NJ dance community.',
       'date': 'Sat, December 10th, 2019',
       'location': 'Sacaucus, New Jersey',
     });
   }
-  
+
+  void addNewUser(FirebaseUser user) {
+    DocumentReference userRef = firestore.collection('users').document(user.uid);
+    userRef.setData({
+      'id': user.uid,
+      'name': user.displayName,
+      'email': user.email,
+    });
+  }
+
+  Future saveDeviceToken(String fcmToken) async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+
+    DocumentReference tokenRef = firestore
+        .collection('users')
+        .document(user.uid);
+
+    tokenRef.updateData({
+      'token': fcmToken,
+      'platform': Platform.operatingSystem
+    });
+  }
 }

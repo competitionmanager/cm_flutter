@@ -1,5 +1,6 @@
+import 'package:cm_flutter/auth/auth_provider.dart';
 import 'package:cm_flutter/screens/login/login_screen.dart';
-import 'package:cm_flutter/screens/team/view_teams_screen.dart';
+import 'package:cm_flutter/screens/profile_screen.dart';
 import 'package:cm_flutter/test_options_drawer.dart';
 import 'package:flutter/material.dart';
 
