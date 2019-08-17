@@ -1,17 +1,13 @@
 import 'package:cm_flutter/auth/auth_provider.dart';
+import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/screens/profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-enum LoginState {
-  loggedOut,
-  loggedIn,
-  loggingIn,
-}
+enum LoginState { loggedOut, loggedIn }
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -19,18 +15,15 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  FirebaseUser user;
+  final AuthProvider authProvider = AuthProvider();
+  final FirestoreProvider db = FirestoreProvider();
+  final FirebaseMessaging fcm = FirebaseMessaging();
   LoginState loginState = LoginState.loggedOut;
-  AuthProvider authProvider = AuthProvider();
+  FirebaseUser user;
 
   @override
   void initState() {
     super.initState();
-    if (user == null) {
-      loginState = LoginState.loggedOut;
-    } else {
-      loginState = LoginState.loggedIn;
-    }
   }
 
   @override
@@ -61,19 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-                loginState == LoginState.loggedOut
-                    ? buildGoogleSignInButton()
-                    : RaisedButton(
-                        child: Text('Log Out'),
-                        onPressed: () {
-                          authProvider.signOut();
-                          setState(
-                            () {
-                              loginState = LoginState.loggedOut;
-                            },
-                          );
-                        },
-                      ),
+                buildGoogleSignInButton(),
               ],
             ),
           ),
@@ -89,27 +70,19 @@ class _LoginScreenState extends State<LoginScreen> {
       onPressed: () async {
         if (loginState == LoginState.loggedOut) {
           user = await authProvider.signIn();
+
           if (user != null) {
+            db.addNewUser(user);
+
+            String fcmToken = await fcm.getToken();
+            if (fcmToken != null) db.saveDeviceToken(fcmToken);
+
             Route route = MaterialPageRoute(
-                builder: (BuildContext context) => ProfileScreen(user: user));
-            Navigator.of(context).pop(route);
-            Navigator.of(context).push(route);
+                builder: (BuildContext context) => ProfileScreen());
+            Navigator.of(context).pushReplacement(route);
           }
         }
       },
-    );
-  }
-
-  AppBar buildAppBar(BuildContext context) {
-    return AppBar(
-      leading: BackButton(),
-      title: Text(
-        'Login Screen',
-        style: TextStyle(color: Colors.black),
-      ),
-      backgroundColor: Color.fromRGBO(255, 255, 255, 0.85),
-      elevation: 1.0,
-      iconTheme: IconThemeData(color: Colors.black),
     );
   }
 }

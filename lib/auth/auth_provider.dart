@@ -6,6 +6,8 @@ class AuthProvider {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
+  Future<FirebaseUser> getCurrentUser() async => auth.currentUser();
+
   Future<FirebaseUser> signIn() async {
     GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
     if (googleSignInAccount == null) return null;
@@ -26,5 +28,6 @@ class AuthProvider {
 
   void signOut() async {
     googleSignIn.signOut();
+    auth.signOut();
   }
 }
