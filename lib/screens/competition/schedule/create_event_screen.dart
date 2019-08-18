@@ -42,8 +42,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                   text: 'Create Event',
                   color: Colors.blue,
                   onPressed: () {
-                    db.addEvent(widget.compId, eventNameController.text, startDateTime, endDateTime);
-                    Navigator.of(context).pop();
+                    if (eventNameController.text != null &&
+                        startDateTime != null &&
+                        endDateTime != null) {
+                      db.addEvent(widget.compId, eventNameController.text,
+                          startDateTime, endDateTime);
+                      Navigator.of(context).pop();
+                    }
                   },
                 ),
               ],
@@ -56,13 +61,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
   Future<DateTime> pickTime() async {
     TimeOfDay time = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
+      context: context,
+      initialTime: TimeOfDay.now(),
     );
     // TODO: replace date with event date
     DateTime eventDate = DateTime.now();
     if (time != null) {
-      DateTime date = DateTime(eventDate.year, eventDate.month, eventDate.day, time.hour, time.minute);
+      DateTime date = DateTime(eventDate.year, eventDate.month, eventDate.day,
+          time.hour, time.minute);
       return date;
     }
   }
@@ -108,7 +114,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       String hour = time.hourOfPeriod.toString();
       if (hour == '0') hour = '12';
       String minute;
-      time.minute < 10 ? minute = '0${time.minute.toString()}' : minute = time.minute.toString();
+      time.minute < 10
+          ? minute = '0${time.minute.toString()}'
+          : minute = time.minute.toString();
       String period = time.hour < 12 ? 'AM' : 'PM';
       text = '$hour:$minute $period';
     }
