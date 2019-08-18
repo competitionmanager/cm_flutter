@@ -19,12 +19,10 @@ class _EventCardListState extends State<EventCardList> {
 
   @override
   Widget build(BuildContext context) {
-    print("Rebuilding...");
     return StreamBuilder(
       stream: db.getEvents(widget.compId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
-        print(snapshot.data.documents.length);
         return ListView.builder(
           itemCount: snapshot.data.documents.length,
           itemBuilder: (context, index) {
@@ -40,7 +38,6 @@ class _EventCardListState extends State<EventCardList> {
 
   EventCard buildItem(DocumentSnapshot doc) {
     Event event = Event.fromMap(doc.data);
-    print(event);
     return EventCard(
       event: event,
       compId: widget.compId,

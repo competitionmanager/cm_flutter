@@ -1,6 +1,7 @@
 import 'package:cm_flutter/auth/auth_provider.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/event.dart';
+import 'package:cm_flutter/screens/competition/schedule/edit_event_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -42,7 +43,8 @@ class _EventCardState extends State<EventCard> {
   @override
   void initState() {
     super.initState();
-    print("initState");
+
+    // Checks if user is subscribed to the events loaded.
     List<dynamic> subscribers = widget.event.subscribers;
     AuthProvider auth = AuthProvider();
     if (subscribers != null) {
@@ -64,58 +66,81 @@ class _EventCardState extends State<EventCard> {
     String endTime = DateFormat.jm().format(widget.event.endTime);
     return Row(
       children: <Widget>[
-        Text(
-          '$startTime - $endTime',
-          style: TextStyle(color: Colors.black54, fontSize: 12.0),
+        Column(
+          children: <Widget>[
+            Text(
+              startTime,
+              style: TextStyle(color: Colors.black54, fontSize: 12.0),
+            ),
+            Text(
+              endTime,
+              style: TextStyle(color: Colors.black54, fontSize: 12.0),
+            ),
+          ],
         ),
         SizedBox(width: 16.0),
         Expanded(
-          child: Container(
-            height: 54.0,
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  SizedBox(width: 8.0),
-                  Text(
-                    widget.event.name,
-                    style: TextStyle(fontSize: 18.0),
-                  ),
-                  IconButton(
-                    icon: !isUserSubscribed
-                        ? Icon(
-                            Icons.star_border,
-                            color: Colors.black12,
-                          )
-                        : Icon(
-                            Icons.star,
-                            color: Colors.yellow,
-                          ),
-                    onPressed: () async {
-                      if (!isUserSubscribed) {
-                        print('event subscribed');
-                        FirebaseUser user = await authProvider.getCurrentUser();
-                        db.addSubscriber(widget.compId, widget.event.id, user);
-                        setState(() {
-                          isUserSubscribed = true;
-                        });
-                      } else {
-                        print('event unsubscribed');
-                        FirebaseUser user = await authProvider.getCurrentUser();
-                        db.removeSubscriber(widget.compId, widget.event.id, user);
-                        setState(() {
-                          isUserSubscribed = false;
-                        });
-                      }
-                      widget.onPressed();
-                    },
-                  )
-                ],
+          child: GestureDetector(
+            onTap: () {
+              Route route = MaterialPageRoute(
+                builder: (BuildContext context) => EditEventScreen(
+                  compId: widget.compId,
+                  event: widget.event,
+                ),
+              );
+              Navigator.of(context).push(route);
+            },
+            child: Container(
+              height: 54.0,
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Text(
+                        widget.event.name,
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                    ),
+                    IconButton(
+                      icon: !isUserSubscribed
+                          ? Icon(
+                              Icons.star_border,
+                              color: Colors.black12,
+                            )
+                          : Icon(
+                              Icons.star,
+                              color: Colors.yellow,
+                            ),
+                      onPressed: () async {
+                        if (!isUserSubscribed) {
+                          FirebaseUser user =
+                              await authProvider.getCurrentUser();
+                          db.addSubscriber(
+                              widget.compId, widget.event.id, user);
+                          setState(() {
+                            isUserSubscribed = true;
+                          });
+                        } else {
+                          FirebaseUser user =
+                              await authProvider.getCurrentUser();
+                          db.removeSubscriber(
+                              widget.compId, widget.event.id, user);
+                          setState(() {
+                            isUserSubscribed = false;
+                          });
+                        }
+                        widget.onPressed();
+                      },
+                    )
+                  ],
+                ),
               ),
-            ),
-            decoration: BoxDecoration(
-              color: Color.fromRGBO(0, 0, 0, 0.05),
-              borderRadius: BorderRadius.all(Radius.circular(15.0)),
+              decoration: BoxDecoration(
+                color: Color.fromRGBO(0, 0, 0, 0.05),
+                borderRadius: BorderRadius.all(Radius.circular(5.0)),
+              ),
             ),
           ),
         )

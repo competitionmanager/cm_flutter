@@ -147,6 +147,18 @@ class FirestoreProvider {
     return id;
   }
 
+  String updateEvent(String compId, String eventId, String name, DateTime startTime, DateTime endTime) {
+    CollectionReference compEventsRef = firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('events');
+    compEventsRef.document(eventId).updateData({
+      'name': name,
+      'startTime': startTime,
+      'endTime': endTime,
+    });
+  }
+
   void addDummyEvents(String compId) {
     CollectionReference compEventsRef = firestore
         .collection('competitions')
