@@ -123,7 +123,6 @@ class FirestoreProvider {
     });
   }
 
-
   Stream<QuerySnapshot> getEvents(String compId) {
     return firestore
         .collection('competitions')
@@ -209,6 +208,13 @@ class FirestoreProvider {
       'endTime': endTime,
       'id': id,
     });
+  }
+
+  void clearEvents(String compId) {
+    CollectionReference compEventsRef = firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('events');
   }
 
   void deleteEvent(String compId, String eventId) {

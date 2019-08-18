@@ -109,13 +109,13 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
             text: 'Create an Event',
             color: Colors.blue,
             onPressed: () {
-              // db.addDummyEvents(widget.compId);
-              Route route = MaterialPageRoute(
-                builder: (BuildContext context) => CreateEventScreen(
-                  compId: widget.compId,
-                ),
-              );
-              Navigator.of(context).push(route);
+              db.addDummyEvents(widget.compId);
+              // Route route = MaterialPageRoute(
+              //   builder: (BuildContext context) => CreateEventScreen(
+              //     compId: widget.compId,
+              //   ),
+              // );
+              // Navigator.of(context).push(route);
             },
           ),
         ),
