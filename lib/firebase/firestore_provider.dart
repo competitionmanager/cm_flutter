@@ -123,8 +123,106 @@ class FirestoreProvider {
     });
   }
 
+
+  Stream<QuerySnapshot> getEvents(String compId) {
+    return firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('events').orderBy('startTime')
+        .snapshots();
+  }
+
+  String addEvent(String compId, String name, DateTime startTime, DateTime endTime) {
+    CollectionReference compEventsRef = firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('events');
+    String id = uuid.v4();
+    compEventsRef.document(id).setData({
+      'name': name,
+      'startTime': startTime,
+      'endTime': endTime,
+      'id': id,
+    });
+    return id;
+  }
+
+  void addDummyEvents(String compId) {
+    CollectionReference compEventsRef = firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('events');
+
+    String id = uuid.v4();
+    DateTime startTime = DateTime.now().subtract(Duration(hours: 7));
+    DateTime endTime = startTime.add(Duration(minutes: 8));
+    compEventsRef.document(id).setData({
+      'name': 'Unique Movement Tech',
+      'startTime': startTime,
+      'endTime': endTime,
+      'id': id,
+    });
+
+    id = uuid.v4();
+    startTime = endTime.add(Duration(minutes: 1));
+    endTime = startTime.add(Duration(minutes: 8));
+    compEventsRef.document(id).setData({
+      'name': 'Wannabes Tech',
+      'startTime': startTime,
+      'endTime': endTime,
+      'id': id,
+    });
+
+    id = uuid.v4();
+    startTime = endTime.add(Duration(minutes: 1));
+    endTime = startTime.add(Duration(minutes: 8));
+    compEventsRef.document(id).setData({
+      'name': 'N/A Tech',
+      'startTime': startTime,
+      'endTime': endTime,
+      'id': id,
+    });
+    id = uuid.v4();
+    startTime = endTime.add(Duration(minutes: 1));
+    endTime = startTime.add(Duration(minutes: 8));
+    compEventsRef.document(id).setData({
+      'name': 'Choreo Cookies Tech',
+      'startTime': startTime,
+      'endTime': endTime,
+      'id': id,
+    });
+    id = uuid.v4();
+    startTime = endTime.add(Duration(minutes: 1));
+    endTime = startTime.add(Duration(minutes: 8));
+    compEventsRef.document(id).setData({
+      'name': 'GRV Tech',
+      'startTime': startTime,
+      'endTime': endTime,
+      'id': id,
+    });
+    id = uuid.v4();
+    startTime = endTime.add(Duration(minutes: 1));
+    endTime = startTime.add(Duration(minutes: 8));
+    compEventsRef.document(id).setData({
+      'name': 'The Company Tech',
+      'startTime': startTime,
+      'endTime': endTime,
+      'id': id,
+    });
+  }
+
+  void deleteEvent(String compId, String eventId) {
+    firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('events')
+        .document(eventId)
+        .delete();
+  }
+
   void addNewUser(FirebaseUser user) {
-    DocumentReference userRef = firestore.collection('users').document(user.uid);
+    DocumentReference userRef =
+        firestore.collection('users').document(user.uid);
     userRef.setData({
       'id': user.uid,
       'name': user.displayName,
@@ -135,13 +233,10 @@ class FirestoreProvider {
   Future saveDeviceToken(String fcmToken) async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
 
-    DocumentReference tokenRef = firestore
-        .collection('users')
-        .document(user.uid);
+    DocumentReference tokenRef =
+        firestore.collection('users').document(user.uid);
 
-    tokenRef.updateData({
-      'token': fcmToken,
-      'platform': Platform.operatingSystem
-    });
+    tokenRef
+        .updateData({'token': fcmToken, 'platform': Platform.operatingSystem});
   }
 }
