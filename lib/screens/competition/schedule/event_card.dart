@@ -15,16 +15,31 @@ class EventCard extends StatelessWidget {
       children: <Widget>[
         Text(
           '$startTime - $endTime',
-          style: TextStyle(color: Colors.black54),
+          style: TextStyle(color: Colors.black54, fontSize: 12.0),
         ),
         SizedBox(width: 16.0),
         Expanded(
           child: Container(
             height: 54.0,
             child: Center(
-              child: Text(
-                event.name,
-                style: TextStyle(fontSize: 18.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  SizedBox(width: 8.0),
+                  Text(
+                    event.name,
+                    style: TextStyle(fontSize: 18.0),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.star_border,
+                      color: Colors.black12,
+                    ),
+                    onPressed: () {
+                      print('event subscribed');
+                    },
+                  )
+                ],
               ),
             ),
             decoration: BoxDecoration(
