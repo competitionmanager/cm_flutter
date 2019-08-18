@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cm_flutter/fcm/message_provider.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/screens/competition/edit_competition_screen.dart';
@@ -7,7 +8,6 @@ import 'package:cm_flutter/screens/competition/schedule/event_card_list.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as prefix0;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class ViewCompetitionScreen extends StatefulWidget {
@@ -21,12 +21,14 @@ class ViewCompetitionScreen extends StatefulWidget {
 
 class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   FirestoreProvider db;
+  MessageProvider messageProvider;
   Competition competition;
 
   @override
   void initState() {
     super.initState();
     db = FirestoreProvider();
+    messageProvider = MessageProvider(context: context);
   }
 
   @override
@@ -34,10 +36,8 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     return Scaffold(
       body: SafeArea(
         child: SlidingUpPanel(
-          parallaxEnabled: true,
-          parallaxOffset: 0.3,
-          minHeight: 64.0,
-          maxHeight: MediaQuery.of(context).size.height - 200,
+          minHeight: 80.0,
+          maxHeight: MediaQuery.of(context).size.height - 100,
           panel: buildSchedulePanel(),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
