@@ -18,6 +18,7 @@ class Event {
   });
 
   factory Event.fromMap(Map<String, dynamic> json) {
+    print(json);
     DateTime startTime = json['startTime'].toDate();
     DateTime endTime = json['endTime'].toDate();
 

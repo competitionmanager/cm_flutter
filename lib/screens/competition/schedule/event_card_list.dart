@@ -32,6 +32,6 @@ class EventCardList extends StatelessWidget {
 
   EventCard buildItem(DocumentSnapshot doc) {
     Event event = Event.fromMap(doc.data);
-    return EventCard(event: event);
+    return EventCard(event: event, compId : compId);
   }
 }

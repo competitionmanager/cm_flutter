@@ -142,6 +142,7 @@ class FirestoreProvider {
       'startTime': startTime,
       'endTime': endTime,
       'id': id,
+      'subscribers': []
     });
     return id;
   }
@@ -233,6 +234,17 @@ class FirestoreProvider {
       'id': user.uid,
       'name': user.displayName,
       'email': user.email,
+    });
+  }
+
+  void addSubscriber(String compId, String eventId, FirebaseUser user) {
+    DocumentReference eventRef
+        = firestore.collection('competitions')
+                   .document(compId)
+                   .collection('events')
+                   .document(eventId);
+    eventRef.updateData({
+      'subscribers' : FieldValue.arrayUnion([user.uid])
     });
   }
 
