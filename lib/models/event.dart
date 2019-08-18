@@ -11,41 +11,30 @@ class Event {
   DateTime startTime;
   DateTime endTime;
   String id;
-  bool isUserSubcribed;
+  List<dynamic> subscribers;
+  bool isUserSubscribed;
 
   Event({
     this.name,
     this.startTime,
     this.endTime,
     this.id,
-    this.isUserSubcribed,
+    this.subscribers,
+    this.isUserSubscribed,
   });
 
   factory Event.fromMap(Map<String, dynamic> json) {
-    AuthProvider auth = AuthProvider();
     DateTime startTime = json['startTime'].toDate();
     DateTime endTime = json['endTime'].toDate();
     bool isUserSubscribed = false;
 
-    List<dynamic> subscribers;
-    subscribers = json['subscribers'];
-    
-    if (subscribers != null) {
-      subscribers.forEach((id) {
-        auth.getCurrentUser().then((user) {
-          String userId = user.uid;
-          if (userId == id) isUserSubscribed = true;
-        });
-      });
-    }
-
-    // print(isUserSubscribed);
     return Event(
       name: json["name"],
       startTime: startTime,
       endTime: endTime,
       id: json["id"],
-      isUserSubcribed: isUserSubscribed,
+      subscribers: json["subscribers"],
+      isUserSubscribed: isUserSubscribed,
     );
   }
 
@@ -55,4 +44,15 @@ class Event {
         "endTime": endTime,
         "id": id,
       };
+
+    String toString() {
+      String output = '';
+      output += 'Event Object: {\n\t';
+      output += 'id: $id\n';
+      output += 'name: $name\n\t';
+      output += 'subscribers: $subscribers\n\t';
+      output += 'isUserSubscribed: $isUserSubscribed\n\t';
+      output += '}\n';
+      return output;
+    }
 }
