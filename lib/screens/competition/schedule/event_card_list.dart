@@ -17,6 +17,7 @@ class EventCardList extends StatelessWidget {
       stream: db.getEvents(compId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
+        print(snapshot.data.documents.length);
         return ListView.builder(
           itemCount: snapshot.data.documents.length,
           itemBuilder: (context, index) {
