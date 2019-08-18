@@ -5,16 +5,23 @@ import 'package:cm_flutter/screens/competition/schedule/event_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class EventCardList extends StatelessWidget {
-  final FirestoreProvider db = FirestoreProvider();
+class EventCardList extends StatefulWidget {
   final String compId;
 
   EventCardList({this.compId});
 
   @override
+  _EventCardListState createState() => _EventCardListState();
+}
+
+class _EventCardListState extends State<EventCardList> {
+  final FirestoreProvider db = FirestoreProvider();
+
+  @override
   Widget build(BuildContext context) {
+    print("Rebuilding...");
     return StreamBuilder(
-      stream: db.getEvents(compId),
+      stream: db.getEvents(widget.compId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
         print(snapshot.data.documents.length);
@@ -33,6 +40,13 @@ class EventCardList extends StatelessWidget {
 
   EventCard buildItem(DocumentSnapshot doc) {
     Event event = Event.fromMap(doc.data);
-    return EventCard(event: event, compId : compId);
+    print(event);
+    return EventCard(
+      event: event,
+      compId: widget.compId,
+      onPressed: () {
+        setState(() {});
+      },
+    );
   }
 }

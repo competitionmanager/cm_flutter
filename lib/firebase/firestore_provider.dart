@@ -248,6 +248,18 @@ class FirestoreProvider {
     });
   }
 
+  void removeSubscriber(String compId, String eventId, FirebaseUser user) {
+    DocumentReference eventRef
+        = firestore.collection('competitions')
+                   .document(compId)
+                   .collection('events')
+                   .document(eventId);
+    eventRef.updateData({
+      // TODO: What happens if user does not exist in the array?
+      'subscribers' : FieldValue.arrayRemove([user.uid])
+    });
+  }
+
   Future saveDeviceToken(String fcmToken) async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
 
