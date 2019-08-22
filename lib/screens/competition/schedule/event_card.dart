@@ -65,20 +65,23 @@ class _EventCardState extends State<EventCard> {
     String startTime = DateFormat.jm().format(widget.event.startTime);
     String endTime = DateFormat.jm().format(widget.event.endTime);
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             Text(
               startTime,
-              style: TextStyle(color: Colors.black54, fontSize: 12.0),
+              style: TextStyle(color: Colors.black54, fontSize: 16.0),
             ),
+            SizedBox(height: 6.0),
             Text(
               endTime,
-              style: TextStyle(color: Colors.black54, fontSize: 12.0),
+              style: TextStyle(color: Colors.black54, fontSize: 16.0),
             ),
           ],
         ),
-        SizedBox(width: 16.0),
+        SizedBox(width: 48.0),
         Expanded(
           child: GestureDetector(
             onTap: () {
@@ -90,56 +93,56 @@ class _EventCardState extends State<EventCard> {
               );
               Navigator.of(context).push(route);
             },
-            child: Container(
-              height: 54.0,
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16.0),
-                      child: Text(
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
                         widget.event.name,
-                        style: TextStyle(fontSize: 18.0),
+                        style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
                       ),
-                    ),
-                    IconButton(
-                      icon: !isUserSubscribed
-                          ? Icon(
-                              Icons.star_border,
-                              color: Colors.black12,
-                            )
-                          : Icon(
-                              Icons.star,
-                              color: Colors.yellow,
-                            ),
-                      onPressed: () async {
-                        if (!isUserSubscribed) {
-                          FirebaseUser user =
-                              await authProvider.getCurrentUser();
-                          db.addSubscriber(
-                              widget.compId, widget.event.id, user);
-                          setState(() {
-                            isUserSubscribed = true;
-                          });
-                        } else {
-                          FirebaseUser user =
-                              await authProvider.getCurrentUser();
-                          db.removeSubscriber(
-                              widget.compId, widget.event.id, user);
-                          setState(() {
-                            isUserSubscribed = false;
-                          });
-                        }
-                        widget.onPressed();
-                      },
-                    )
-                  ],
-                ),
-              ),
-              decoration: BoxDecoration(
-                color: Color.fromRGBO(0, 0, 0, 0.05),
-                borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      SizedBox(height: 6.0),
+                      Text(
+                        'On deck at ' + DateFormat.jm().format(widget.event.startTime.subtract(Duration(minutes: 20))),
+                        style: TextStyle(fontSize: 16.0, color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: !isUserSubscribed
+                        ? Icon(
+                            Icons.star_border,
+                            color: Colors.blueAccent,
+                          )
+                        : Icon(
+                            Icons.star,
+                            color: Colors.blueAccent,
+                          ),
+                    onPressed: () async {
+                      if (!isUserSubscribed) {
+                        FirebaseUser user =
+                            await authProvider.getCurrentUser();
+                        db.addSubscriber(
+                            widget.compId, widget.event.id, user);
+                        setState(() {
+                          isUserSubscribed = true;
+                        });
+                      } else {
+                        FirebaseUser user =
+                            await authProvider.getCurrentUser();
+                        db.removeSubscriber(
+                            widget.compId, widget.event.id, user);
+                        setState(() {
+                          isUserSubscribed = false;
+                        });
+                      }
+                      widget.onPressed();
+                    },
+                  )
+                ],
               ),
             ),
           ),

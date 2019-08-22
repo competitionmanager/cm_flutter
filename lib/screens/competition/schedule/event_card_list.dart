@@ -26,9 +26,14 @@ class _EventCardListState extends State<EventCardList> {
         return ListView.builder(
           itemCount: snapshot.data.documents.length,
           itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: buildItem(snapshot.data.documents[index]),
+            return Column(
+              children: <Widget>[
+                buildItem(snapshot.data.documents[index]),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                  child: Divider(color: Colors.black45),
+                ),
+              ],
             );
           },
         );
