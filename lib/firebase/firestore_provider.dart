@@ -70,7 +70,7 @@ class FirestoreProvider {
     });
   }
 
-  Stream<DocumentSnapshot> getCompetition(String compId) {
+  Stream<DocumentSnapshot> getCompetitionStream(String compId) {
     return firestore.collection('competitions').document(compId).snapshots();
   }
 
