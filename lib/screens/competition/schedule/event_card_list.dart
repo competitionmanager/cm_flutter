@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
+import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/event.dart';
 import 'package:cm_flutter/screens/competition/schedule/event_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class EventCardList extends StatefulWidget {
-  final String compId;
+  final Competition competition;
 
-  EventCardList({this.compId});
+  EventCardList({this.competition});
 
   @override
   _EventCardListState createState() => _EventCardListState();
@@ -20,7 +21,7 @@ class _EventCardListState extends State<EventCardList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: db.getEvents(widget.compId),
+      stream: db.getEvents(widget.competition.id),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
         return ListView.builder(
@@ -45,7 +46,7 @@ class _EventCardListState extends State<EventCardList> {
     Event event = Event.fromMap(doc.data);
     return EventCard(
       event: event,
-      compId: widget.compId,
+      competition: widget.competition,
       onPressed: () {
         setState(() {});
       },

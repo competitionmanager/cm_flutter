@@ -2,6 +2,7 @@ import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/screens/competition/view_competition_screen.dart';
+import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:flutter/material.dart';
 
 class EditCompetitionScreen extends StatefulWidget {
@@ -34,6 +35,7 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: buildAppBar(context),
       body: SafeArea(
         child: Padding(
@@ -64,7 +66,14 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
               SizedBox(
                 height: 32.0,
               ),
-              buildDeleteButton(context),
+              ColorGradientButton(
+                text: 'Delete Competition',
+                color: Colors.red,
+                onPressed: () {
+                  db.deleteCompetition(widget.competition.id);
+                  Navigator.of(context).pop();
+                },
+              ),
             ],
           ),
         ),
@@ -115,25 +124,6 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
           ),
         )
       ],
-    );
-  }
-
-  SizedBox buildDeleteButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 48.0,
-      child: RaisedButton(
-        child: Text(
-          'Delete Competition',
-          style: TextStyle(color: Colors.white),
-        ),
-        color: Colors.red,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-        onPressed: () {
-          db.deleteCompetition(widget.competition.id);
-          Navigator.of(context).pop();
-        },
-      ),
     );
   }
 }
