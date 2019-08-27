@@ -21,6 +21,8 @@ dependencies:
   flutter_datetime_picker: ^1.2.6
   intl: ^0.15.8
   shared_preferences: ^0.5.3+4
+  firebase_storage: ^3.0.5
+  image_picker: 0.4.12+1
 
 dev_dependencies:
   flutter_test:

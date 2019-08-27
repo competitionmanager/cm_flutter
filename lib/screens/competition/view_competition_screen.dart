@@ -7,6 +7,12 @@ import 'package:cm_flutter/screens/competition/schedule/schedule_panel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as Path;
+
+import 'dart:async';
+import 'dart:io';
 
 class ViewCompetitionScreen extends StatefulWidget {
   final String compId;
@@ -21,6 +27,28 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   FirestoreProvider db;
   MessageProvider messageProvider;
   Competition competition;
+
+  File eventImage;
+
+  Future _uploadImage(BuildContext context) async {
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      eventImage = image;
+    });
+
+    /*
+    String fileName = Path.basename(image.path);
+    StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = firebaseStorageRef.putFile(eventImage);
+    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    setState(() {
+      print("Event image uploaded.");
+      eventImage = image;
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text("Event image uploaded.")));
+    });
+    */
+  }
 
   @override
   void initState() {
@@ -60,7 +88,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
                                       AlwaysStoppedAnimation<Color>(Colors.black),
                                 ),
                               );
-                            return _buildScreen(snapshot.data);
+                            return _buildScreen(snapshot.data, context);
                           },
                         ),
                       ),
@@ -99,11 +127,53 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     );
   }
 
-  Widget _buildScreen(DocumentSnapshot doc) {
+  /*
+  Widget enableUpload() {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          Image.file(eventImage, height: 300.0, width: 300.0),
+          RaisedButton(
+            elevation: 7.0,
+            child: Text('Upload'),
+            textColor: Colors.white,
+            color: Colors.blue,
+            onPressed: () async {
+              final StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child('myimage.jpg');
+              final StorageUploadTask task = firebaseStorageRef.putFile(eventImage);
+            }
+          ),
+        ],
+      )
+    );
+  }
+  */
+
+  Widget getImage() {
+    if (eventImage == null) {
+      return Image.network(
+          "https://picsum.photos/id/9/250/250",
+          fit: BoxFit.fill);
+    }
+    else {
+      return Image.file(eventImage, fit: BoxFit.fill);
+    }
+  }
+
+  Widget _buildScreen(DocumentSnapshot doc, BuildContext context) {
     competition = Competition.fromMap(doc.data);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
+        GestureDetector(
+          onTap: () {
+            _uploadImage(context);
+          },
+          child: Container(
+            alignment: Alignment.center,
+            child: getImage()
+          )
+        ),
         Text(
           doc['name'],
           style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold),
