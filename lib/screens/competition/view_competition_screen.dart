@@ -8,6 +8,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as Path;
+
+import 'dart:async';
+import 'dart:io';
 
 class ViewCompetitionScreen extends StatefulWidget {
   final String compId;
@@ -22,6 +28,33 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   FirestoreProvider db;
   MessageProvider messageProvider;
   Competition competition;
+
+  File eventImage;
+
+  Future _uploadImage(BuildContext context) async {
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      eventImage = image;
+    });
+
+    String fileName = Path.basename(image.path);
+    StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = firebaseStorageRef.putFile(eventImage);
+    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+
+    Map<String, dynamic> data = {
+      'image_url': downloadUrl
+    };
+    db.updateCompetition(widget.compId, data);
+    print("downloadUrl = " + downloadUrl);
+    setState(() {
+      print("Event image uploaded.");
+      eventImage = image;
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text("Event image uploaded.")));
+    });
+  }
 
   @override
   void initState() {
@@ -61,7 +94,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
                           children: <Widget>[
                             Padding(
                               padding: const EdgeInsets.all(16.0),
-                              child: _buildScreen(),
+                              child: _buildScreen(context),
                             ),
                           ],
                         ),
@@ -106,10 +139,40 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     );
   }
 
-  Widget _buildScreen() {
+  Widget _getImage() {
+    if (eventImage == null) {
+      // Attempt to grab image from Firebase.
+      // If there is no image associated with this competition, then display a "no logo" image.
+      print("competition.image_url = " + competition.image_url);
+      if (competition.image_url == null) {
+        return Image.network(
+          "https://abeon-hosting.com/images/no-logo-png-10.png",
+          fit: BoxFit.fill);
+      }
+      else {
+        return Image.network(
+          competition.image_url,
+          fit: BoxFit.fill);
+      }
+    }
+    else {
+      return Image.file(eventImage, fit: BoxFit.fill);
+    }
+  }
+
+  Widget _buildScreen(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
+        GestureDetector(
+          onTap: () {
+            _uploadImage(context);
+          },
+          child: Container(
+            alignment: Alignment.center,
+            child: _getImage()
+          )
+        ),
         Text(
           competition.name,
           style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold),

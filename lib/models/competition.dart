@@ -14,6 +14,7 @@ class Competition {
   String location;
   DateTime date;
   String description;
+  String image_url;
 
   Competition({
     this.id,
@@ -22,6 +23,7 @@ class Competition {
     this.location,
     this.date,
     this.description,
+    this.image_url,
   });
 
   factory Competition.fromMap(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class Competition {
       location: json["location"],
       date: json["date"].toDate(),
       description: json["description"],
+      image_url: json["image_url"],
     );
   }
 
@@ -43,6 +46,7 @@ class Competition {
       location: data["location"],
       date: data["date"].toDate(),
       description: data["description"],
+      image_url: data["image_url"],
     );
   }
 
@@ -52,7 +56,8 @@ class Competition {
         "organizer": organizer,
         "location": location,
         "date": date,
-        "description": description
+        "description": description,
+        "image_url": image_url,
       };
 
   String toString() {
@@ -64,6 +69,7 @@ class Competition {
     output += 'location: $location\n\t';
     output += 'date: $date\n\t';
     output += 'description: $description\n';
+    output += 'image_url: $image_url\n';
     output += '}\n';
     return output;
   }
