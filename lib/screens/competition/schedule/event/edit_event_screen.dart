@@ -2,6 +2,7 @@ import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/event.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
+import 'package:cm_flutter/widgets/label_text_field.dart';
 import 'package:flutter/material.dart';
 
 class EditEventScreen extends StatefulWidget {
@@ -31,7 +32,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
     startTime = TimeOfDay.fromDateTime(widget.event.startTime);
     endTime = TimeOfDay.fromDateTime(widget.event.endTime);
 
-    DateTime eventDate = DateTime.now();
+    DateTime eventDate = widget.competition.date;
     startDateTime = DateTime(eventDate.year, eventDate.month, eventDate.day,
         startTime.hour, startTime.minute);
     endDateTime = DateTime(eventDate.year, eventDate.month, eventDate.day,
@@ -54,7 +55,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
                   text: 'Delete Event',
                   color: Colors.red,
                   onPressed: () {
-                    db.deleteCompetition(widget.competition.id);
+                    db.deleteEvent(widget.competition.id, widget.event.id);
                     Navigator.of(context).pop();
                   },
                 ),
@@ -68,27 +69,11 @@ class _EditEventScreenState extends State<EditEventScreen> {
 
   Widget buildEditForm() {
     return Expanded(
-      child: ListView(
-        physics: NeverScrollableScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        // physics: NeverScrollableScrollPhysics(),
         children: <Widget>[
-          Text(
-            'Event Name',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16.0,
-            ),
-          ),
-          SizedBox(height: 8.0),
-          TextField(
-            controller: eventNameController,
-            decoration: InputDecoration(
-              hintText: 'Name of the event',
-              border: OutlineInputBorder(),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black12),
-              ),
-            ),
-          ),
+          LabelTextField(labelText: 'Event Name', textController: eventNameController),
           SizedBox(height: 16.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -115,10 +100,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 flex: 1,
                 child: Padding(
                   padding: const EdgeInsets.only(
-                    left: 8.0,
-                    right: 8.0,
-                    bottom: 15.0
-                  ),
+                      left: 8.0, right: 8.0, bottom: 15.0),
                   child: Icon(Icons.arrow_forward),
                 ),
               ),
@@ -159,7 +141,6 @@ class _EditEventScreenState extends State<EditEventScreen> {
       return date;
     }
   }
-
 
   Widget buildTimeDropdownBox(TimeOfDay time, bool isStartTime) {
     String text = '';
@@ -234,7 +215,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
               size: 32.0,
             ),
             onPressed: () {
-              db.updateEvent(widget.competition.id, widget.event.id, eventNameController.text, startDateTime, endDateTime);
+              db.updateEvent(widget.competition.id, widget.event.id,
+                  eventNameController.text, startDateTime, endDateTime);
               Navigator.of(context).pop();
             },
           ),

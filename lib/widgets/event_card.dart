@@ -26,22 +26,6 @@ class _EventCardState extends State<EventCard> {
 
   bool isUserSubscribed = false;
 
-  Future<Event> checkSubscribers(Event event) async {
-    Event newEvent = event;
-    List<dynamic> subscribers = event.subscribers;
-    AuthProvider auth = AuthProvider();
-
-    if (subscribers != null) {
-      subscribers.forEach((id) async {
-        FirebaseUser user = await auth.getCurrentUser();
-        if (user.uid == id) {
-          newEvent.isUserSubscribed = true;
-        }
-      });
-    }
-    return newEvent;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -83,7 +67,7 @@ class _EventCardState extends State<EventCard> {
             ),
           ],
         ),
-        SizedBox(width: 48.0),
+        SizedBox(width: 36.0),
         Expanded(
           child: Center(
             child: Row(
@@ -93,14 +77,22 @@ class _EventCardState extends State<EventCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        widget.event.name,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      widget.event.name != ''
+                          ? Text(
+                              widget.event.name,
+                              style: TextStyle(
+                                fontSize: 16.0,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : Text(
+                              'Empty',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: Colors.black54
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                       SizedBox(height: 6.0),
                       Text(
                         'On deck at ' +

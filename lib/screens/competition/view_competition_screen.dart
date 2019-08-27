@@ -113,7 +113,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   SchedulePanel buildSchedulePanel(DocumentSnapshot doc) {
     competition = Competition.fromMap(doc.data);
     return SchedulePanel(competition: competition);
-  } 
+  }
 
   Row buildAppBar(BuildContext context) {
     return Row(

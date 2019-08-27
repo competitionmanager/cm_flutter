@@ -1,5 +1,4 @@
 import 'package:cm_flutter/models/competition.dart';
-import 'package:cm_flutter/screens/competition/schedule/event/create_event_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/event/create_multiple_events_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/event/create_single_event_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/event_card_list.dart';

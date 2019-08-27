@@ -127,11 +127,13 @@ class FirestoreProvider {
     return firestore
         .collection('competitions')
         .document(compId)
-        .collection('events').orderBy('startTime')
+        .collection('events')
+        .orderBy('startTime')
         .snapshots();
   }
 
-  String addEvent(String compId, String name, DateTime startTime, DateTime endTime) {
+  String addEvent(
+      String compId, String name, DateTime startTime, DateTime endTime) {
     CollectionReference compEventsRef = firestore
         .collection('competitions')
         .document(compId)
@@ -147,7 +149,31 @@ class FirestoreProvider {
     return id;
   }
 
-  String updateEvent(String compId, String eventId, String name, DateTime startTime, DateTime endTime) {
+  void addEvents({String compId, DateTime startTime, int numTeams,
+      int eventDuration, int breakDuration}) {
+    CollectionReference compEventsRef = firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('events');
+    String id;
+
+    DateTime eventStartTime = startTime;
+    for (int i = 0; i < numTeams; i++) {
+      id = uuid.v4();
+      compEventsRef.document(id).setData({
+        'name': '',
+        'startTime': eventStartTime,
+        'endTime': eventStartTime.add(Duration(minutes: eventDuration)),
+        'id': id,
+        'subscribers': []
+      });
+      eventStartTime = eventStartTime.add(Duration(minutes: eventDuration));
+      eventStartTime = eventStartTime.add(Duration(minutes: breakDuration));
+    }
+  }
+
+  String updateEvent(String compId, String eventId, String name,
+      DateTime startTime, DateTime endTime) {
     CollectionReference compEventsRef = firestore
         .collection('competitions')
         .document(compId)
@@ -223,13 +249,6 @@ class FirestoreProvider {
     });
   }
 
-  void clearEvents(String compId) {
-    CollectionReference compEventsRef = firestore
-        .collection('competitions')
-        .document(compId)
-        .collection('events');
-  }
-
   void deleteEvent(String compId, String eventId) {
     firestore
         .collection('competitions')
@@ -250,25 +269,25 @@ class FirestoreProvider {
   }
 
   void addSubscriber(String compId, String eventId, FirebaseUser user) {
-    DocumentReference eventRef
-        = firestore.collection('competitions')
-                   .document(compId)
-                   .collection('events')
-                   .document(eventId);
+    DocumentReference eventRef = firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('events')
+        .document(eventId);
     eventRef.updateData({
-      'subscribers' : FieldValue.arrayUnion([user.uid])
+      'subscribers': FieldValue.arrayUnion([user.uid])
     });
   }
 
   void removeSubscriber(String compId, String eventId, FirebaseUser user) {
-    DocumentReference eventRef
-        = firestore.collection('competitions')
-                   .document(compId)
-                   .collection('events')
-                   .document(eventId);
+    DocumentReference eventRef = firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('events')
+        .document(eventId);
     eventRef.updateData({
       // TODO: What happens if user does not exist in the array?
-      'subscribers' : FieldValue.arrayRemove([user.uid])
+      'subscribers': FieldValue.arrayRemove([user.uid])
     });
   }
 

@@ -2,10 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/event.dart';
-import 'package:cm_flutter/screens/competition/schedule/event_card.dart';
+import 'package:cm_flutter/widgets/event_card.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
 class EventCardList extends StatefulWidget {
   final Competition competition;
 
