@@ -1,6 +1,8 @@
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
+import 'package:cm_flutter/widgets/label_text_field.dart';
+import 'package:cm_flutter/widgets/time_dropdown_box.dart';
 import 'package:flutter/material.dart';
 
 class CreateSingleEventScreen extends StatefulWidget {
@@ -41,11 +43,8 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
             bottom: 16.0,
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               buildCreateForm(),
-              SizedBox(height: 16.0),
               ColorGradientButton(
                 text: 'Create Event',
                 color: Colors.blue,
@@ -90,23 +89,9 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
       child: ListView(
         physics: NeverScrollableScrollPhysics(),
         children: <Widget>[
-          Text(
-            'Event Name',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16.0,
-            ),
-          ),
-          SizedBox(height: 8.0),
-          TextField(
-            controller: eventNameController,
-            decoration: InputDecoration(
-              hintText: 'Name of the event',
-              border: OutlineInputBorder(),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black12),
-              ),
-            ),
+          LabelTextField(
+            labelText: 'Event Name',
+            textController: eventNameController,
           ),
           SizedBox(height: 16.0),
           Row(
@@ -121,12 +106,23 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
                     Text(
                       'Start Time',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
                         fontSize: 16.0,
                       ),
                     ),
                     SizedBox(height: 8.0),
-                    buildTimeDropdownBox(startTime, true),
+                    TimeDropdownBox(
+                      time: startTime,
+                      onTap: () {
+                        pickTime().then((date) {
+                          if (date != null) {
+                            setState(() {
+                              startDateTime = date;
+                              startTime = TimeOfDay.fromDateTime(date);
+                            });
+                          }
+                        });
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -146,71 +142,29 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
                     Text(
                       'End Time',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
                         fontSize: 16.0,
                       ),
                     ),
                     SizedBox(height: 8.0),
-                    buildTimeDropdownBox(endTime, false),
+                    TimeDropdownBox(
+                      time: endTime,
+                      onTap: () {
+                        pickTime().then((date) {
+                          if (date != null) {
+                            setState(() {
+                              endDateTime = date;
+                              endTime = TimeOfDay.fromDateTime(date);
+                            });
+                          }
+                        });
+                      },
+                    ),
                   ],
                 ),
               ),
             ],
           )
         ],
-      ),
-    );
-  }
-
-  Widget buildTimeDropdownBox(TimeOfDay time, bool isStartTime) {
-    String text = '';
-    if (time != null) {
-      String hour = time.hourOfPeriod.toString();
-      if (hour == '0') hour = '12';
-      String minute;
-      time.minute < 10
-          ? minute = '0${time.minute.toString()}'
-          : minute = time.minute.toString();
-      String period = time.hour < 12 ? 'AM' : 'PM';
-      text = '$hour:$minute $period';
-    }
-    return GestureDetector(
-      onTap: () {
-        pickTime().then((date) {
-          if (date != null) {
-            if (isStartTime) {
-              setState(() {
-                startDateTime = date;
-                startTime = TimeOfDay.fromDateTime(date);
-              });
-            } else {
-              setState(() {
-                endDateTime = date;
-                endTime = TimeOfDay.fromDateTime(date);
-              });
-            }
-          }
-        });
-      },
-      child: Container(
-        height: 50.0,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black12),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 16.0, right: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(
-                text,
-                style: TextStyle(fontSize: 16.0),
-              ),
-              Icon(Icons.arrow_drop_down),
-            ],
-          ),
-        ),
       ),
     );
   }
