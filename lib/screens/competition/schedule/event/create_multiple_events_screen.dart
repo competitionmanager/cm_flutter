@@ -51,7 +51,7 @@ class _CreateMultipleEventsScreenState
               buildCreateForm(),
               ColorGradientButton(
                 text: 'Create Event',
-                color: Colors.blue,
+                color: Color.fromRGBO(0, 210, 150, 1.0),
                 onPressed: () {
                   if (startTime != null &&
                       numTeamsController.text != '' &&
@@ -144,6 +144,7 @@ class _CreateMultipleEventsScreenState
             'Start Time',
             style: TextStyle(
               fontSize: 16.0,
+              fontWeight: FontWeight.w500,
             ),
           ),
           SizedBox(height: 8.0),

@@ -39,20 +39,20 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     });
 
     String fileName = Path.basename(image.path);
-    StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
+    StorageReference firebaseStorageRef =
+        FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = firebaseStorageRef.putFile(eventImage);
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
     String downloadUrl = await taskSnapshot.ref.getDownloadURL();
 
-    Map<String, dynamic> data = {
-      'image_url': downloadUrl
-    };
+    Map<String, dynamic> data = {'image_url': downloadUrl};
     db.updateCompetition(widget.compId, data);
     print("downloadUrl = " + downloadUrl);
     setState(() {
       print("Event image uploaded.");
       eventImage = image;
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text("Event image uploaded.")));
+      Scaffold.of(context)
+          .showSnackBar(SnackBar(content: Text("Event image uploaded.")));
     });
   }
 
@@ -84,7 +84,8 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
                 ),
                 panel: buildSchedulePanel(snapshot.data),
                 body: Padding(
-                  padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 16.0),
+                  padding: const EdgeInsets.only(
+                      left: 8.0, right: 8.0, bottom: 125.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
@@ -132,7 +133,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
               builder: (BuildContext context) =>
                   EditCompetitionScreen(competition: competition),
             );
-            Navigator.of(context).pushReplacement(route);
+            Navigator.of(context).push(route);
           },
         )
       ],
@@ -143,19 +144,16 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     if (eventImage == null) {
       // Attempt to grab image from Firebase.
       // If there is no image associated with this competition, then display a "no logo" image.
-      print("competition.image_url = " + competition.image_url);
       if (competition.image_url == null) {
         return Image.network(
-          "https://abeon-hosting.com/images/no-logo-png-10.png",
-          fit: BoxFit.fill);
+            "https://abeon-hosting.com/images/no-logo-png-10.png",
+            fit: BoxFit.fill);
+      } else {
+        print("competition.image_url = " + competition.image_url);
+
+        return Image.network(competition.image_url, fit: BoxFit.fill);
       }
-      else {
-        return Image.network(
-          competition.image_url,
-          fit: BoxFit.fill);
-      }
-    }
-    else {
+    } else {
       return Image.file(eventImage, fit: BoxFit.fill);
     }
   }
@@ -165,14 +163,10 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         GestureDetector(
-          onTap: () {
-            _uploadImage(context);
-          },
-          child: Container(
-            alignment: Alignment.center,
-            child: _getImage()
-          )
-        ),
+            onTap: () {
+              _uploadImage(context);
+            },
+            child: Container(alignment: Alignment.center, child: _getImage())),
         Text(
           competition.name,
           style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold),
