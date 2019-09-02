@@ -86,7 +86,7 @@ class FirestoreProvider {
     firestore.collection('competitions').document(compId).delete();
   }
 
-  String addCompetition(String name, String organizer, String location) {
+  String addCompetition({String name, String organizer, String location, DateTime date}) {
     CollectionReference teamsRef = firestore.collection('competitions');
     String id = uuid.v4();
     teamsRef.document(id).setData({
@@ -94,6 +94,8 @@ class FirestoreProvider {
       'name': name,
       'organizer': organizer,
       'location': location,
+      'date': date,
+      'description': 'Description of the $name',
     });
     return id;
   }
