@@ -20,7 +20,6 @@ class _EventCardListState extends State<EventCardList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      // stream: db.getEvents(widget.schedule.id),
       stream: db.getSchedule(compId: widget.competition.id, scheduleId: widget.scheduleId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
@@ -46,6 +45,7 @@ class _EventCardListState extends State<EventCardList> {
     Event event = Event.fromMap(doc.data);
     return EventCard(
       event: event,
+      scheduleId: widget.scheduleId,
       competition: widget.competition,
       onPressed: () {
         setState(() {});

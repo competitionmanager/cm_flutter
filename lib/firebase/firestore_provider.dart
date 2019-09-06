@@ -146,20 +146,13 @@ class FirestoreProvider {
         .snapshots();
   }
 
-  // Stream<QuerySnapshot> getEvents(String compId, String scheduleId) {
-  //   return firestore
-  //       .collection('competitions')
-  //       .document(compId)
-  //       .collection('events')
-  //       .orderBy('startTime')
-  //       .snapshots();
-  // }
-
-  String addEvent(
-      String compId, String name, DateTime startTime, DateTime endTime) {
+  String addEvent(String compId, String scheduleId, String name,
+      DateTime startTime, DateTime endTime) {
     CollectionReference compEventsRef = firestore
         .collection('competitions')
         .document(compId)
+        .collection('schedules')
+        .document(scheduleId)
         .collection('events');
     String id = uuid.v4();
     compEventsRef.document(id).setData({
@@ -167,38 +160,26 @@ class FirestoreProvider {
       'startTime': startTime,
       'endTime': endTime,
       'id': id,
-      'subscribers': []
+      'subscribers': [],
+      'description': '',
     });
     return id;
   }
 
   void addEvents(
       {String compId,
+      String scheduleId,
       DateTime startTime,
       int numTeams,
       int eventDuration,
       int breakDuration}) {
-    // CollectionReference compEventsRef = firestore
-    //     .collection('competitions')
-    //     .document(compId)
-    //     .collection('events');
     String id = uuid.v4();
-
-    DocumentReference compSchedulesRef = firestore
-        .collection('competitions')
-        .document(compId)
-        .collection('schedules').document(id);
-
-      compSchedulesRef.setData({
-        'name': 'Tech Time',
-        'id': id,
-      });
 
     CollectionReference compEventsRef = firestore
         .collection('competitions')
         .document(compId)
         .collection('schedules')
-        .document(id)
+        .document(scheduleId)
         .collection('events');
 
     DateTime eventStartTime = startTime;
@@ -216,11 +197,13 @@ class FirestoreProvider {
     }
   }
 
-  void updateEvent(String compId, String eventId, String name,
-      DateTime startTime, DateTime endTime) {
+  void updateEvent(String compId, String scheduleId, String eventId,
+      String name, DateTime startTime, DateTime endTime) {
     CollectionReference compEventsRef = firestore
         .collection('competitions')
         .document(compId)
+        .collection('schedules')
+        .document(scheduleId)
         .collection('events');
     compEventsRef.document(eventId).updateData({
       'name': name,
@@ -229,77 +212,44 @@ class FirestoreProvider {
     });
   }
 
-  void addDummyEvents(String compId) {
-    CollectionReference compEventsRef = firestore
-        .collection('competitions')
-        .document(compId)
-        .collection('events');
-
-    String id = uuid.v4();
-    DateTime startTime = DateTime.now().subtract(Duration(hours: 7));
-    DateTime endTime = startTime.add(Duration(minutes: 8));
-    compEventsRef.document(id).setData({
-      'name': 'Unique Movement Tech',
-      'startTime': startTime,
-      'endTime': endTime,
-      'id': id,
-    });
-
-    id = uuid.v4();
-    startTime = endTime.add(Duration(minutes: 1));
-    endTime = startTime.add(Duration(minutes: 8));
-    compEventsRef.document(id).setData({
-      'name': 'Wannabes Tech',
-      'startTime': startTime,
-      'endTime': endTime,
-      'id': id,
-    });
-
-    id = uuid.v4();
-    startTime = endTime.add(Duration(minutes: 1));
-    endTime = startTime.add(Duration(minutes: 8));
-    compEventsRef.document(id).setData({
-      'name': 'N/A Tech',
-      'startTime': startTime,
-      'endTime': endTime,
-      'id': id,
-    });
-    id = uuid.v4();
-    startTime = endTime.add(Duration(minutes: 1));
-    endTime = startTime.add(Duration(minutes: 8));
-    compEventsRef.document(id).setData({
-      'name': 'Choreo Cookies Tech',
-      'startTime': startTime,
-      'endTime': endTime,
-      'id': id,
-    });
-    id = uuid.v4();
-    startTime = endTime.add(Duration(minutes: 1));
-    endTime = startTime.add(Duration(minutes: 8));
-    compEventsRef.document(id).setData({
-      'name': 'GRV Tech',
-      'startTime': startTime,
-      'endTime': endTime,
-      'id': id,
-    });
-    id = uuid.v4();
-    startTime = endTime.add(Duration(minutes: 1));
-    endTime = startTime.add(Duration(minutes: 8));
-    compEventsRef.document(id).setData({
-      'name': 'The Company Tech',
-      'startTime': startTime,
-      'endTime': endTime,
-      'id': id,
-    });
-  }
-
-  void deleteEvent(String compId, String eventId) {
+  void deleteEvent(String compId, String scheduleId, String eventId) {
     firestore
         .collection('competitions')
         .document(compId)
+        .collection('schedules')
+        .document(scheduleId)
         .collection('events')
         .document(eventId)
         .delete();
+  }
+
+  void addSubscriber(
+      String compId, String scheduleId, String eventId, FirebaseUser user) {
+    DocumentReference eventRef = firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('schedules')
+        .document(scheduleId)
+        .collection('events')
+        .document(eventId);
+    eventRef.updateData({
+      'subscribers': FieldValue.arrayUnion([user.uid])
+    });
+  }
+
+  void removeSubscriber(
+      String compId, String scheduleId, String eventId, FirebaseUser user) {
+    DocumentReference eventRef = firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('schedules')
+        .document(scheduleId)
+        .collection('events')
+        .document(eventId);
+    eventRef.updateData({
+      // TODO: What happens if user does not exist in the array?
+      'subscribers': FieldValue.arrayRemove([user.uid])
+    });
   }
 
   void addNewUser(FirebaseUser user) {
@@ -309,29 +259,6 @@ class FirestoreProvider {
       'id': user.uid,
       'name': user.displayName,
       'email': user.email,
-    });
-  }
-
-  void addSubscriber(String compId, String eventId, FirebaseUser user) {
-    DocumentReference eventRef = firestore
-        .collection('competitions')
-        .document(compId)
-        .collection('events')
-        .document(eventId);
-    eventRef.updateData({
-      'subscribers': FieldValue.arrayUnion([user.uid])
-    });
-  }
-
-  void removeSubscriber(String compId, String eventId, FirebaseUser user) {
-    DocumentReference eventRef = firestore
-        .collection('competitions')
-        .document(compId)
-        .collection('events')
-        .document(eventId);
-    eventRef.updateData({
-      // TODO: What happens if user does not exist in the array?
-      'subscribers': FieldValue.arrayRemove([user.uid])
     });
   }
 

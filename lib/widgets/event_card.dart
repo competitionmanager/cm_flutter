@@ -9,10 +9,11 @@ import 'package:intl/intl.dart';
 
 class EventCard extends StatefulWidget {
   final Event event;
+  final String scheduleId;
   final Competition competition;
   final VoidCallback onPressed;
 
-  EventCard({this.event, this.competition, this.onPressed});
+  EventCard({this.competition, this.scheduleId, this.event, this.onPressed});
 
   @override
   _EventCardState createState() => _EventCardState();
@@ -20,7 +21,7 @@ class EventCard extends StatefulWidget {
 
 class _EventCardState extends State<EventCard> {
   final FirestoreProvider db = FirestoreProvider();
-  bool isEditing = false; // Debugging purposes for now
+  bool isEditing = true; // Debugging purposes for now
 
   final AuthProvider authProvider = AuthProvider();
 
@@ -126,7 +127,7 @@ class _EventCardState extends State<EventCard> {
                             FirebaseUser user =
                                 await authProvider.getCurrentUser();
                             db.addSubscriber(
-                                widget.competition.id, widget.event.id, user);
+                                widget.competition.id, widget.scheduleId, widget.event.id, user);
                             setState(() {
                               isUserSubscribed = true;
                             });
@@ -134,7 +135,7 @@ class _EventCardState extends State<EventCard> {
                             FirebaseUser user =
                                 await authProvider.getCurrentUser();
                             db.removeSubscriber(
-                                widget.competition.id, widget.event.id, user);
+                                widget.competition.id, widget.scheduleId, widget.event.id, user);
                             setState(() {
                               isUserSubscribed = false;
                             });
@@ -148,6 +149,7 @@ class _EventCardState extends State<EventCard> {
                           Route route = MaterialPageRoute(
                             builder: (BuildContext context) => EditEventScreen(
                               competition: widget.competition,
+                              scheduleId: widget.scheduleId,
                               event: widget.event,
                             ),
                           );

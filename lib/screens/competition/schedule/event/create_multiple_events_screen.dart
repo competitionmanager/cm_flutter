@@ -1,6 +1,8 @@
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
+import 'package:cm_flutter/models/schedule.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
+import 'package:cm_flutter/widgets/label_drop_down.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
 import 'package:cm_flutter/widgets/time_dropdown_box.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +10,14 @@ import 'package:flutter/material.dart';
 class CreateMultipleEventsScreen extends StatefulWidget {
   final Competition competition;
 
-  CreateMultipleEventsScreen({this.competition});
+  // Used to list the available schedules to add the event to.
+  final List<Schedule> schedules;
+
+   // Used to choose the default schedule selection.
+  final int currentTabIndex;
+
+  CreateMultipleEventsScreen(
+      {this.competition, this.schedules, this.currentTabIndex});
 
   @override
   _CreateMultipleEventsScreenState createState() =>
@@ -25,13 +34,19 @@ class _CreateMultipleEventsScreenState
   TimeOfDay startTime;
   DateTime startDateTime;
 
+  int currentIndex;
+
   @override
   void initState() {
     super.initState();
+
     db = FirestoreProvider();
+
     numTeamsController = TextEditingController();
     eventDurationController = TextEditingController();
     breakDurationController = TextEditingController();
+
+    currentIndex = widget.currentTabIndex;
   }
 
   @override
@@ -59,6 +74,7 @@ class _CreateMultipleEventsScreenState
                       breakDurationController.text != '') {
                     db.addEvents(
                       compId: widget.competition.id,
+                      scheduleId: widget.schedules[currentIndex].id,
                       startTime: startDateTime,
                       numTeams: int.parse(numTeamsController.text),
                       eventDuration: int.parse(eventDurationController.text),
@@ -179,9 +195,47 @@ class _CreateMultipleEventsScreenState
             textController: breakDurationController,
             textInputType: TextInputType.number,
           ),
+          SizedBox(height: 16.0),
+          LabelDropDown(
+            labelText: "Schedule",
+            schedules: widget.schedules,
+            dropDownButton: buildDropdownButton(),
+          ),
         ],
       ),
     );
+  }
+
+  DropdownButton buildDropdownButton() {
+    return DropdownButton(
+      isExpanded: true,
+      underline: Container(),
+      value: currentIndex,
+      onChanged: (value) {
+        setState(() {
+          currentIndex = value;
+        });
+      },
+      items: getMenuItems(),
+    );
+  }
+
+  List<DropdownMenuItem> getMenuItems() {
+    List<DropdownMenuItem> items = List();
+    for (int i = 0; i < widget.schedules.length; i++) {
+      items.add(
+        DropdownMenuItem(
+          child: Container(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: Text(widget.schedules[i].name),
+            ),
+          ),
+          value: i,
+        ),
+      );
+    }
+    return items;
   }
 
   AppBar buildAppBar() {

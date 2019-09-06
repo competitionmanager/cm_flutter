@@ -27,7 +27,7 @@ class TimeDropdownBox extends StatelessWidget {
         onTap();
       },
       child: Container(
-        height: 50.0,
+        height: 60.0,
         decoration: BoxDecoration(
           border: Border.all(color: Colors.black12),
           borderRadius: BorderRadius.circular(5.0),

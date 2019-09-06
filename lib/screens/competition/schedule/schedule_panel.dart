@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
+import 'package:cm_flutter/models/schedule.dart';
 import 'package:cm_flutter/screens/competition/schedule/event/create_multiple_events_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/event/create_single_event_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/event_card_list.dart';
-import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/tab_item.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +19,8 @@ class SchedulePanel extends StatefulWidget {
 
 class _SchedulePanelState extends State<SchedulePanel> {
   FirestoreProvider db = FirestoreProvider();
-  int selectedTabIndex = 0;
+  List<Schedule> schedules = List();
+  int currentTabIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,58 @@ class _SchedulePanelState extends State<SchedulePanel> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(child: CircularProgressIndicator());
+        } else if (snapshot.data.documents.length == 0) {
+          return Column(
+            children: <Widget>[
+              SizedBox(height: 16.0),
+              Container(
+                // Rectangle oval decoration
+                width: 64.0,
+                height: 7.5,
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              AppBar(
+                automaticallyImplyLeading: false,
+                backgroundColor: Colors.transparent,
+                elevation: 0.0,
+                centerTitle: true,
+                title: Text(
+                  'View Schedule',
+                  style: TextStyle(
+                    fontSize: 24.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                actions: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 24.0),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.add,
+                        color: Colors.black,
+                        size: 32.0,
+                      ),
+                      onPressed: () {
+                        buildModalBottomSheet(context,
+                            documents: snapshot.data.documents);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 64.0),
+              Text(
+                'There aren\'t any schedules yet :(',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.black45, fontSize: 18.0),
+              )
+            ],
+          );
         } else {
           return Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -68,7 +121,8 @@ class _SchedulePanelState extends State<SchedulePanel> {
                             size: 32.0,
                           ),
                           onPressed: () {
-                            buildModalBottomSheet(context);
+                            buildModalBottomSheet(context,
+                                documents: snapshot.data.documents);
                           },
                         ),
                       ),
@@ -86,7 +140,8 @@ class _SchedulePanelState extends State<SchedulePanel> {
                   ),
                   child: EventCardList(
                     competition: widget.competition,
-                    scheduleId: snapshot.data.documents[selectedTabIndex]["id"],
+                    scheduleId:
+                        snapshot.data.documents[currentTabIndex].data['id'],
                   ),
                 ),
               ),
@@ -108,10 +163,10 @@ class _SchedulePanelState extends State<SchedulePanel> {
           itemBuilder: (BuildContext context, int index) {
             return TabItem(
               tabText: data.documents[index]['name'],
-              tabIsSelected: index == selectedTabIndex,
+              tabIsSelected: index == currentTabIndex,
               onTabSelected: () {
                 setState(() {
-                  selectedTabIndex = index;
+                  currentTabIndex = index;
                 });
               },
             );
@@ -121,7 +176,16 @@ class _SchedulePanelState extends State<SchedulePanel> {
     );
   }
 
-  Future buildModalBottomSheet(BuildContext context) {
+  Future buildModalBottomSheet(BuildContext context,
+      {List<DocumentSnapshot> documents}) {
+    List<Schedule> schedules = List();
+
+    if (documents != null) {
+      for (int i = 0; i < documents.length; i++) {
+        schedules.add(Schedule.fromMap(documents[i].data));
+      }
+    }
+
     return showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -147,6 +211,8 @@ class _SchedulePanelState extends State<SchedulePanel> {
                         builder: (BuildContext context) =>
                             CreateSingleEventScreen(
                           competition: widget.competition,
+                          schedules: schedules,
+                          currentTabIndex: currentTabIndex,
                         ),
                       );
                       Navigator.of(context).push(route);
@@ -160,6 +226,8 @@ class _SchedulePanelState extends State<SchedulePanel> {
                         builder: (BuildContext context) =>
                             CreateMultipleEventsScreen(
                           competition: widget.competition,
+                          schedules: schedules,
+                          currentTabIndex: currentTabIndex,
                         ),
                       );
                       Navigator.of(context).push(route);
