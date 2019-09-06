@@ -1,15 +1,18 @@
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/event.dart';
+import 'package:cm_flutter/models/schedule.dart';
+import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
 import 'package:flutter/material.dart';
 
 class EditEventScreen extends StatefulWidget {
   final Competition competition;
+  final String scheduleId;
   final Event event;
 
-  EditEventScreen({this.competition, this.event});
+  EditEventScreen({this.competition, this.scheduleId, this.event});
 
   @override
   _EditEventScreenState createState() => _EditEventScreenState();
@@ -53,9 +56,9 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 buildEditForm(),
                 ColorGradientButton(
                   text: 'Delete Event',
-                  color: Colors.red,
+                  color: kWarningRed,
                   onPressed: () {
-                    db.deleteEvent(widget.competition.id, widget.event.id);
+                    db.deleteEvent(widget.competition.id, widget.scheduleId, widget.event.id);
                     Navigator.of(context).pop();
                   },
                 ),
@@ -215,7 +218,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
               size: 32.0,
             ),
             onPressed: () {
-              db.updateEvent(widget.competition.id, widget.event.id,
+              db.updateEvent(widget.competition.id, widget.scheduleId, widget.event.id,
                   eventNameController.text, startDateTime, endDateTime);
               Navigator.of(context).pop();
             },

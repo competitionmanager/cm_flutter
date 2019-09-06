@@ -6,8 +6,9 @@ import 'package:cm_flutter/widgets/event_card.dart';
 import 'package:flutter/material.dart';
 class EventCardList extends StatefulWidget {
   final Competition competition;
+  final String scheduleId;
 
-  EventCardList({this.competition});
+  EventCardList({this.competition, this.scheduleId});
 
   @override
   _EventCardListState createState() => _EventCardListState();
@@ -19,7 +20,7 @@ class _EventCardListState extends State<EventCardList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: db.getEvents(widget.competition.id),
+      stream: db.getSchedule(compId: widget.competition.id, scheduleId: widget.scheduleId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
         return ListView.builder(
@@ -44,6 +45,7 @@ class _EventCardListState extends State<EventCardList> {
     Event event = Event.fromMap(doc.data);
     return EventCard(
       event: event,
+      scheduleId: widget.scheduleId,
       competition: widget.competition,
       onPressed: () {
         setState(() {});

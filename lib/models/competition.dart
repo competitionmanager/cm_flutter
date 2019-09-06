@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cm_flutter/firebase/firestore_provider.dart';
+import 'package:cm_flutter/models/event.dart';
 
 Competition competitionFromJson(String str) =>
     Competition.fromMap(json.decode(str));
@@ -35,18 +37,6 @@ class Competition {
       date: json["date"].toDate(),
       description: json["description"],
       image_url: json["image_url"],
-    );
-  }
-
-  factory Competition.fromDocumentSnapshot(DocumentSnapshot data) {
-    return Competition(
-      id: data["id"],
-      name: data["name"],
-      organizer: data["organizer"],
-      location: data["location"],
-      date: data["date"].toDate(),
-      description: data["description"],
-      image_url: data["image_url"],
     );
   }
 
