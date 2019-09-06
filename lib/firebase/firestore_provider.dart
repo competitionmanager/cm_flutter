@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' as prefix0;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 
@@ -86,7 +87,8 @@ class FirestoreProvider {
     firestore.collection('competitions').document(compId).delete();
   }
 
-  String addCompetition({String name, String organizer, String location, DateTime date}) {
+  String addCompetition(
+      {String name, String organizer, String location, DateTime date}) {
     CollectionReference teamsRef = firestore.collection('competitions');
     String id = uuid.v4();
     teamsRef.document(id).setData({
@@ -125,14 +127,33 @@ class FirestoreProvider {
     });
   }
 
-  Stream<QuerySnapshot> getEvents(String compId) {
+  Stream<QuerySnapshot> getSchedule({String compId, String scheduleId}) {
     return firestore
         .collection('competitions')
         .document(compId)
+        .collection('schedules')
+        .document(scheduleId)
         .collection('events')
         .orderBy('startTime')
         .snapshots();
   }
+
+  Stream<QuerySnapshot> getSchedules(String compId) {
+    return firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('schedules')
+        .snapshots();
+  }
+
+  // Stream<QuerySnapshot> getEvents(String compId, String scheduleId) {
+  //   return firestore
+  //       .collection('competitions')
+  //       .document(compId)
+  //       .collection('events')
+  //       .orderBy('startTime')
+  //       .snapshots();
+  // }
 
   String addEvent(
       String compId, String name, DateTime startTime, DateTime endTime) {
@@ -151,13 +172,34 @@ class FirestoreProvider {
     return id;
   }
 
-  void addEvents({String compId, DateTime startTime, int numTeams,
-      int eventDuration, int breakDuration}) {
+  void addEvents(
+      {String compId,
+      DateTime startTime,
+      int numTeams,
+      int eventDuration,
+      int breakDuration}) {
+    // CollectionReference compEventsRef = firestore
+    //     .collection('competitions')
+    //     .document(compId)
+    //     .collection('events');
+    String id = uuid.v4();
+
+    DocumentReference compSchedulesRef = firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('schedules').document(id);
+
+      compSchedulesRef.setData({
+        'name': 'Tech Time',
+        'id': id,
+      });
+
     CollectionReference compEventsRef = firestore
         .collection('competitions')
         .document(compId)
+        .collection('schedules')
+        .document(id)
         .collection('events');
-    String id;
 
     DateTime eventStartTime = startTime;
     for (int i = 0; i < numTeams; i++) {
@@ -174,7 +216,7 @@ class FirestoreProvider {
     }
   }
 
-  String updateEvent(String compId, String eventId, String name,
+  void updateEvent(String compId, String eventId, String name,
       DateTime startTime, DateTime endTime) {
     CollectionReference compEventsRef = firestore
         .collection('competitions')

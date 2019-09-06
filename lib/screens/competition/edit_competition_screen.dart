@@ -1,5 +1,6 @@
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
+import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/date_dropdown_box.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
@@ -55,7 +56,7 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
       padding: const EdgeInsets.all(16.0),
       child: ColorGradientButton(
         text: 'Delete Competition',
-        color: Color.fromRGBO(225, 30, 30, 1.0),
+        color: kWarningRed,
         onPressed: () {
           db.deleteCompetition(widget.competition.id);
         },

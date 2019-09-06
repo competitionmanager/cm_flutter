@@ -20,7 +20,7 @@ class EventCard extends StatefulWidget {
 
 class _EventCardState extends State<EventCard> {
   final FirestoreProvider db = FirestoreProvider();
-  bool isEditing = true;
+  bool isEditing = false; // Debugging purposes for now
 
   final AuthProvider authProvider = AuthProvider();
 
@@ -51,21 +51,26 @@ class _EventCardState extends State<EventCard> {
     String startTime = DateFormat.jm().format(widget.event.startTime);
     String endTime = DateFormat.jm().format(widget.event.endTime);
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: <Widget>[
-            Text(
-              startTime,
-              style: TextStyle(color: Colors.black54, fontSize: 16.0),
-            ),
-            SizedBox(height: 6.0),
-            Text(
-              endTime,
-              style: TextStyle(color: Colors.black54, fontSize: 16.0),
-            ),
-          ],
+        Container(
+          // Lines up times in a vertical line regardless of length
+          width: MediaQuery.of(context).size.width / 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              Text(
+                startTime,
+                style: TextStyle(color: Colors.black54, fontSize: 16.0),
+              ),
+              SizedBox(height: 6.0),
+              Text(
+                endTime,
+                style: TextStyle(color: Colors.black54, fontSize: 16.0),
+              ),
+            ],
+          ),
         ),
         SizedBox(width: 36.0),
         Expanded(

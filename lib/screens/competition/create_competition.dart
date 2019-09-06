@@ -1,5 +1,6 @@
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/screens/competition/view_competition_screen.dart';
+import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/date_dropdown_box.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
@@ -52,7 +53,7 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
       padding: const EdgeInsets.all(16.0),
       child: ColorGradientButton(
         text: 'Create Competition',
-        color: Color.fromRGBO(0, 210, 150, 1.0),
+        color: kMintyGreen,
         onPressed: () {
           if (compDate != null &&
               competitionNameController.text != '' &&
