@@ -87,8 +87,7 @@ class FirestoreProvider {
     firestore.collection('competitions').document(compId).delete();
   }
 
-  String addCompetition(
-      {String name, String organizer, String location, DateTime date}) {
+  String addCompetition({String name, String organizer, String location, DateTime date, String downloadURL}) {
     CollectionReference teamsRef = firestore.collection('competitions');
     String id = uuid.v4();
     teamsRef.document(id).setData({
@@ -98,6 +97,7 @@ class FirestoreProvider {
       'location': location,
       'date': date,
       'description': 'Description of the $name',
+      'image_url': downloadURL
     });
     return id;
   }
