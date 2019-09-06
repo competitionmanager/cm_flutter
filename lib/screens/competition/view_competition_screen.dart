@@ -8,12 +8,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as Path;
-
-import 'dart:async';
-import 'dart:io';
 
 class ViewCompetitionScreen extends StatefulWidget {
   final String compId;
@@ -28,33 +22,6 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   FirestoreProvider db;
   MessageProvider messageProvider;
   Competition competition;
-
-  File eventImage;
-
-  Future _uploadImage(BuildContext context) async {
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-
-    setState(() {
-      eventImage = image;
-    });
-
-    String fileName = Path.basename(image.path);
-    StorageReference firebaseStorageRef =
-        FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = firebaseStorageRef.putFile(eventImage);
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
-    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-
-    Map<String, dynamic> data = {'image_url': downloadUrl};
-    db.updateCompetition(widget.compId, data);
-    print("downloadUrl = " + downloadUrl);
-    setState(() {
-      print("Event image uploaded.");
-      eventImage = image;
-      Scaffold.of(context)
-          .showSnackBar(SnackBar(content: Text("Event image uploaded.")));
-    });
-  }
 
   @override
   void initState() {
@@ -83,25 +50,11 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
                   topRight: Radius.circular(25.0),
                 ),
                 panel: buildSchedulePanel(snapshot.data),
-                body: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 8.0, right: 8.0, bottom: 125.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      buildAppBar(context),
-                      Expanded(
-                        child: ListView(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: _buildScreen(context),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                body: Stack(
+                  children: <Widget>[
+                    buildScreen(context),
+                    buildAppBar(context)
+                  ],
                 ),
               );
             }
@@ -140,89 +93,102 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     );
   }
 
-  Widget _getImage() {
-    if (eventImage == null) {
-      // Attempt to grab image from Firebase.
-      // If there is no image associated with this competition, then display a "no logo" image.
-      if (competition.image_url == null) {
-        return Image.network(
-            "https://abeon-hosting.com/images/no-logo-png-10.png",
-            fit: BoxFit.fill);
-      } else {
-        print("competition.image_url = " + competition.image_url);
-
-        return Image.network(competition.image_url, fit: BoxFit.fill);
-      }
+  Widget getImage() {
+    if (competition.image_url != null) {
+      // Get image from Firebase Storage
+      print("Image URL: " + competition.image_url);
+      return Image.network(competition.image_url, fit: BoxFit.cover);
     } else {
-      return Image.file(eventImage, fit: BoxFit.fill);
+      // Photo N/A
+      return Center(
+        child: Text("Photo not available")
+      );
     }
   }
 
-  Widget _buildScreen(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        GestureDetector(
-            onTap: () {
-              _uploadImage(context);
-            },
-            child: Container(alignment: Alignment.center, child: _getImage())),
-        Text(
-          competition.name,
-          style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 12.0),
-        Text(
-          'by ${competition.organizer}',
-          style: TextStyle(
-            fontSize: 18.0,
-            color: Colors.black54,
-          ),
-        ),
-        SizedBox(height: 32.0),
-        Row(
-          children: <Widget>[
-            Icon(
-              Icons.date_range,
-              color: Colors.black26,
-              size: 28.0,
-            ),
-            SizedBox(width: 16.0),
-            Text(
-              DateFormat('EEE, MMMM d, yyyy').format(competition.date),
-              style: TextStyle(fontSize: 18.0),
-            ),
-          ],
-        ),
-        SizedBox(height: 16.0),
-        Row(
-          children: <Widget>[
-            Icon(
-              Icons.location_on,
-              color: Colors.black26,
-              size: 28.0,
-            ),
-            SizedBox(width: 16.0),
-            Text(
-              competition.location,
-              style: TextStyle(fontSize: 18.0),
-            ),
-          ],
-        ),
-        SizedBox(height: 32.0),
-        Text(
-          'Description',
-          style: TextStyle(
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: 16.0),
-        Text(
-          competition.description,
-          style: TextStyle(fontSize: 16.0),
-        )
-      ],
+  Container buildPhotoContainer(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height / 3,
+      color: Color.fromRGBO(0, 0, 0, 0.5),
+      child: getImage()
     );
+  }
+
+  Widget buildScreen(BuildContext context) {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            child: ListView(
+              children: <Widget>[
+                buildPhotoContainer(context),
+                Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          competition.name,
+                          style: TextStyle(
+                              fontSize: 32.0, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 12.0),
+                        Text(
+                          'by ${competition.organizer}',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        SizedBox(height: 32.0),
+                        Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.date_range,
+                              color: Colors.black26,
+                              size: 28.0,
+                            ),
+                            SizedBox(width: 16.0),
+                            Text(
+                              DateFormat('EEE, MMMM d, yyyy')
+                                  .format(competition.date),
+                              style: TextStyle(fontSize: 18.0),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 16.0),
+                        Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.location_on,
+                              color: Colors.black26,
+                              size: 28.0,
+                            ),
+                            SizedBox(width: 16.0),
+                            Text(
+                              competition.location,
+                              style: TextStyle(fontSize: 18.0),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 32.0),
+                        Text(
+                          'Description',
+                          style: TextStyle(
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 16.0),
+                        Text(
+                          competition.description,
+                          style: TextStyle(fontSize: 16.0),
+                        )
+                      ],
+                    ))
+              ],
+            ),
+          )
+        ]);
   }
 }
