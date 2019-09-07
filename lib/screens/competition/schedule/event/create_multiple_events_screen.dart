@@ -13,7 +13,7 @@ class CreateMultipleEventsScreen extends StatefulWidget {
   // Used to list the available schedules to add the event to.
   final List<Schedule> schedules;
 
-   // Used to choose the default schedule selection.
+  // Used to choose the default schedule selection.
   final int currentTabIndex;
 
   CreateMultipleEventsScreen(
@@ -54,17 +54,13 @@ class _CreateMultipleEventsScreenState
     return Scaffold(
       appBar: buildAppBar(),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            top: 16.0,
-            left: 32.0,
-            right: 32.0,
-            bottom: 16.0,
-          ),
-          child: Column(
-            children: <Widget>[
-              buildCreateForm(),
-              ColorGradientButton(
+        child: Column(
+          children: <Widget>[
+            buildCreateForm(),
+            Divider(color: Colors.black26),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ColorGradientButton(
                 text: 'Create Event',
                 color: Color.fromRGBO(0, 210, 150, 1.0),
                 onPressed: () {
@@ -84,8 +80,8 @@ class _CreateMultipleEventsScreenState
                   Navigator.of(context).pop();
                 },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -154,52 +150,57 @@ class _CreateMultipleEventsScreenState
   Expanded buildCreateForm() {
     return Expanded(
       child: ListView(
-        physics: NeverScrollableScrollPhysics(),
+        // physics: NeverScrollableScrollPhysics(),
         children: <Widget>[
-          Text(
-            'Start Time',
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.w500,
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Start Time',
+                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 8.0),
+                TimeDropdownBox(
+                  time: startTime,
+                  onTap: () {
+                    pickTime().then((date) {
+                      if (date != null) {
+                        setState(() {
+                          startDateTime = date;
+                          startTime = TimeOfDay.fromDateTime(date);
+                        });
+                      }
+                    });
+                  },
+                ),
+                SizedBox(height: 16.0),
+                LabelTextField(
+                  labelText: 'Number of Teams',
+                  textController: numTeamsController,
+                  textInputType: TextInputType.number,
+                ),
+                SizedBox(height: 16.0),
+                LabelTextField(
+                  labelText: 'Event Duration',
+                  textController: eventDurationController,
+                  textInputType: TextInputType.number,
+                ),
+                SizedBox(height: 16.0),
+                LabelTextField(
+                  labelText: 'Break Duration',
+                  textController: breakDurationController,
+                  textInputType: TextInputType.number,
+                ),
+                SizedBox(height: 16.0),
+                LabelDropDown(
+                  labelText: "Schedule",
+                  schedules: widget.schedules,
+                  dropDownButton: buildDropdownButton(),
+                ),
+              ],
             ),
-          ),
-          SizedBox(height: 8.0),
-          TimeDropdownBox(
-            time: startTime,
-            onTap: () {
-              pickTime().then((date) {
-                if (date != null) {
-                  setState(() {
-                    startDateTime = date;
-                    startTime = TimeOfDay.fromDateTime(date);
-                  });
-                }
-              });
-            },
-          ),
-          SizedBox(height: 16.0),
-          LabelTextField(
-            labelText: 'Number of Teams',
-            textController: numTeamsController,
-            textInputType: TextInputType.number,
-          ),
-          SizedBox(height: 16.0),
-          LabelTextField(
-            labelText: 'Event Duration',
-            textController: eventDurationController,
-            textInputType: TextInputType.number,
-          ),
-          SizedBox(height: 16.0),
-          LabelTextField(
-            labelText: 'Break Duration',
-            textController: breakDurationController,
-            textInputType: TextInputType.number,
-          ),
-          SizedBox(height: 16.0),
-          LabelDropDown(
-            labelText: "Schedule",
-            schedules: widget.schedules,
-            dropDownButton: buildDropdownButton(),
           ),
         ],
       ),

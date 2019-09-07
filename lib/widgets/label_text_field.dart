@@ -22,10 +22,7 @@ class _LabelTextFieldState extends State<LabelTextField> {
       children: <Widget>[
         Text(
           widget.labelText,
-          style: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
         ),
         SizedBox(height: 8.0),
         TextField(
