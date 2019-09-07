@@ -178,22 +178,18 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(height: 8.0),
-                Container(
-                  width: MediaQuery.of(context).size.width / 2,
-                  child: DateDropdownBox(
-                    date: compDate,
-                    onTap: () {
-                      pickDate().then((date) {
+                DateDropdownBox(
+                  date: compDate,
+                  onTap: () {
+                    pickDate().then((date) {
                         if (date != null) {
                           setState(() {
                             compDate = date;
                           });
                         }
                       });
-                    },
-                  ),
-                )
+                  },
+                ),
               ],
             ),
           )

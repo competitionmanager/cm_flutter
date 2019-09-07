@@ -5,6 +5,7 @@ import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/date_dropdown_box.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as prefix0;
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart' as Path;
@@ -38,7 +39,7 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
     locationController = TextEditingController();
     locationController.text = '';
     compDate = DateTime.now();
-    downloadURL= '';
+    downloadURL = '';
   }
 
   @override
@@ -50,6 +51,7 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             buildCreateForm(),
+            Divider(color: Colors.black26),
             buildCreateButton(context),
           ],
         ),
@@ -69,11 +71,11 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
 
   Padding buildCreateButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
       child: ColorGradientButton(
         text: 'Create Competition',
         color: kMintyGreen,
-        onPressed: () async{
+        onPressed: () async {
           if (compDate != null &&
               competitionNameController.text != '' &&
               organizerController.text != '' &&
@@ -85,7 +87,7 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
               organizer: organizerController.text,
               location: locationController.text,
               date: compDate,
-              downloadURL: downloadURL
+              downloadURL: downloadURL,
             );
             Route route = MaterialPageRoute(
               builder: (BuildContext context) =>
@@ -106,44 +108,75 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
     });
   }
 
-  Container buildPhotoContainer(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height / 3,
-      color: Color.fromRGBO(0, 0, 0, 0.5),
-      child: GestureDetector(
-          onTap: () {
-            uploadImage(context);
-          },
-          child: getImage()),
-    );
-  }
-
-  Widget getImage() {
+  GestureDetector buildPhotoContainer(BuildContext context) {
     if (competitionImage == null) {
-      return Container(
-        width: 100.0,
-        height: 40.0,
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          border: Border.all(color: Colors.white),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: Center(
-          child: Text(
-            'Upload photo',
-            style: TextStyle(color: Colors.white),
+      return GestureDetector(
+        onTap: () {
+          uploadImage(context);
+        },
+        child: Container(
+          height: MediaQuery.of(context).size.height / 3,
+          decoration: BoxDecoration(
+            color: Colors.black26,
+          ),
+          child: Center(
+            child: Container(
+              width: 100.0,
+              height: 40.0,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(color: Colors.white),
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+              child: Center(
+                child: Text(
+                  'Upload photo',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
           ),
         ),
       );
     } else {
-      return Image.file(competitionImage, fit: BoxFit.cover);
+      return GestureDetector(
+        onTap: () {
+          uploadImage(context);
+        },
+        child: Container(
+          height: MediaQuery.of(context).size.height / 3,
+          child: Stack(
+            fit: StackFit.expand,
+            children: <Widget>[
+              Image.file(competitionImage, fit: BoxFit.cover),
+              Center(
+                child: Container(
+                  width: 100.0,
+                  height: 40.0,
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(0, 0, 0, 0.5),
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Edit photo',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
   }
 
   Future<DateTime> pickDate() async {
     DateTime compDate = await showDatePicker(
       context: context,
-      firstDate: DateTime.now().subtract(Duration(days: 30)),
+      firstDate: DateTime.now().subtract(Duration(days: 365)),
       lastDate: DateTime.now().add(Duration(days: 365)),
       initialDate: DateTime.now(),
     );

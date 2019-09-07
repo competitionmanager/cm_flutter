@@ -48,22 +48,24 @@ class _EditEventScreenState extends State<EditEventScreen> {
       appBar: buildAppBar(context),
       body: SafeArea(
         child: Container(
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                buildEditForm(),
-                ColorGradientButton(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              buildEditForm(),
+              Divider(color: Colors.black26),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ColorGradientButton(
                   text: 'Delete Event',
                   color: kWarningRed,
                   onPressed: () {
-                    db.deleteEvent(widget.competition.id, widget.scheduleId, widget.event.id);
+                    db.deleteEvent(widget.competition.id, widget.scheduleId,
+                        widget.event.id);
                     Navigator.of(context).pop();
                   },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -72,60 +74,63 @@ class _EditEventScreenState extends State<EditEventScreen> {
 
   Widget buildEditForm() {
     return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: ListView(
         // physics: NeverScrollableScrollPhysics(),
         children: <Widget>[
-          LabelTextField(labelText: 'Event Name', textController: eventNameController),
-          SizedBox(height: 16.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Flexible(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: <Widget>[
+                LabelTextField(
+                  labelText: 'Event Name',
+                  textController: eventNameController,
+                ),
+                SizedBox(height: 16.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
-                    Text(
-                      'Start Time',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.0,
+                    Flexible(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            'Start Time',
+                            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
+                          ),
+                          SizedBox(height: 8.0),
+                          buildTimeDropdownBox(startTime, true),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 8.0),
-                    buildTimeDropdownBox(startTime, true),
-                  ],
-                ),
-              ),
-              Flexible(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 8.0, right: 8.0, bottom: 15.0),
-                  child: Icon(Icons.arrow_forward),
-                ),
-              ),
-              Flexible(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'End Time',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.0,
+                    Flexible(
+                      flex: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 8.0, right: 8.0, bottom: 15.0),
+                        child: Icon(Icons.arrow_forward),
                       ),
                     ),
-                    SizedBox(height: 8.0),
-                    buildTimeDropdownBox(endTime, false),
+                    Flexible(
+                      flex: 3,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            'End Time',
+                            style: TextStyle(fontSize: 16.0),
+                          ),
+                          SizedBox(height: 8.0),
+                          buildTimeDropdownBox(endTime, false),
+                        ],
+                      ),
+                    ),
                   ],
-                ),
-              ),
-            ],
-          )
+                )
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -218,8 +223,13 @@ class _EditEventScreenState extends State<EditEventScreen> {
               size: 32.0,
             ),
             onPressed: () {
-              db.updateEvent(widget.competition.id, widget.scheduleId, widget.event.id,
-                  eventNameController.text, startDateTime, endDateTime);
+              db.updateEvent(
+                  widget.competition.id,
+                  widget.scheduleId,
+                  widget.event.id,
+                  eventNameController.text,
+                  startDateTime,
+                  endDateTime);
               Navigator.of(context).pop();
             },
           ),

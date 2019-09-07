@@ -6,7 +6,10 @@ class LabelDropDown extends StatefulWidget {
   final List<Schedule> schedules;
   final Widget dropDownButton;
 
-  LabelDropDown({@required this.labelText, @required this.schedules, @required this.dropDownButton});
+  LabelDropDown(
+      {@required this.labelText,
+      @required this.schedules,
+      @required this.dropDownButton});
 
   @override
   _LabelDropDownState createState() => _LabelDropDownState();
@@ -22,10 +25,7 @@ class _LabelDropDownState extends State<LabelDropDown> {
       children: <Widget>[
         Text(
           widget.labelText,
-          style: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
         ),
         SizedBox(height: 8.0),
         Container(
