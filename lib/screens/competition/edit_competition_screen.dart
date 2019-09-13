@@ -53,7 +53,15 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             buildCreateForm(),
-            buildDeleteButton(context),
+            Divider(color: Colors.black26),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: 8.0,
+              ),
+              child: buildDeleteButton(context),
+            ),
           ],
         ),
       ),
@@ -62,7 +70,8 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
 
   Future uploadToFirebaseStorage() async {
     String fileName = Path.basename(competitionImage.path);
-    StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(fileName);
+    StorageReference firebaseStorageRef =
+        FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = firebaseStorageRef.putFile(competitionImage);
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
     String downloadUrl = await taskSnapshot.ref.getDownloadURL();
@@ -72,16 +81,13 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
     print("downloadUrl = " + downloadUrl);
   }
 
-  Padding buildDeleteButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ColorGradientButton(
-        text: 'Delete Competition',
-        color: kWarningRed,
-        onPressed: () {
-          db.deleteCompetition(widget.competition.id);
-        },
-      ),
+  ColorGradientButton buildDeleteButton(BuildContext context) {
+    return ColorGradientButton(
+      text: 'Delete Competition',
+      color: kWarningRed,
+      onPressed: () {
+        db.deleteCompetition(widget.competition.id);
+      },
     );
   }
 
@@ -90,10 +96,10 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
       height: MediaQuery.of(context).size.height / 3,
       color: Color.fromRGBO(0, 0, 0, 0.5),
       child: GestureDetector(
-        onTap: () {
-          uploadImage(context);
-        },
-        child: getImage()),
+          onTap: () {
+            uploadImage(context);
+          },
+          child: getImage()),
     );
   }
 
@@ -120,8 +126,7 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
           ),
         );
       }
-    }
-    else {
+    } else {
       return Image.file(competitionImage, fit: BoxFit.cover);
     }
   }
@@ -182,12 +187,12 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
                   date: compDate,
                   onTap: () {
                     pickDate().then((date) {
-                        if (date != null) {
-                          setState(() {
-                            compDate = date;
-                          });
-                        }
-                      });
+                      if (date != null) {
+                        setState(() {
+                          compDate = date;
+                        });
+                      }
+                    });
                   },
                 ),
               ],

@@ -3,7 +3,9 @@ import 'package:cm_flutter/fcm/message_provider.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/screens/competition/edit_competition_screen.dart';
-import 'package:cm_flutter/screens/competition/schedule/schedule_panel.dart';
+import 'package:cm_flutter/screens/competition/schedule/view_schedule_screen.dart';
+import 'package:cm_flutter/styles/colors.dart';
+import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -42,20 +44,12 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
             if (!snapshot.hasData) {
               return Center(child: CircularProgressIndicator());
             } else {
-              return SlidingUpPanel(
-                minHeight: 100.0,
-                maxHeight: MediaQuery.of(context).size.height,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(25.0),
-                  topRight: Radius.circular(25.0),
-                ),
-                panel: buildSchedulePanel(snapshot.data),
-                body: Stack(
-                  children: <Widget>[
-                    buildScreen(context),
-                    buildAppBar(context)
-                  ],
-                ),
+              competition = Competition.fromMap(snapshot.data.data);
+              return Stack(
+                children: <Widget>[
+                  buildScreen(context),
+                  buildAppBar(context),
+                ],
               );
             }
           },
@@ -64,9 +58,9 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     );
   }
 
-  SchedulePanel buildSchedulePanel(DocumentSnapshot doc) {
+  ViewScheduleScreen buildSchedulePanel(DocumentSnapshot doc) {
     competition = Competition.fromMap(doc.data);
-    return SchedulePanel(competition: competition);
+    return ViewScheduleScreen(competition: competition);
   }
 
   Row buildAppBar(BuildContext context) {
@@ -201,7 +195,27 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
               )
             ],
           ),
-        )
+        ),
+        Divider(color: Colors.black26),
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            bottom: 8.0,
+          ),
+          child: ColorGradientButton(
+            color: kMintyGreen,
+            text: 'View Schedule',
+            onPressed: () {
+              Route route = MaterialPageRoute(
+                builder: (BuildContext context) => ViewScheduleScreen(
+                  competition: competition,
+                ),
+              );
+              Navigator.of(context).push(route);
+            },
+          ),
+        ),
       ],
     );
   }

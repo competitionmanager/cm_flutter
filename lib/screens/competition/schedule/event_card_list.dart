@@ -4,6 +4,7 @@ import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/event.dart';
 import 'package:cm_flutter/widgets/event_card.dart';
 import 'package:flutter/material.dart';
+
 class EventCardList extends StatefulWidget {
   final Competition competition;
   final String scheduleId;
@@ -20,9 +21,24 @@ class _EventCardListState extends State<EventCardList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: db.getSchedule(compId: widget.competition.id, scheduleId: widget.scheduleId),
+      stream: db.getSchedule(
+        compId: widget.competition.id,
+        scheduleId: widget.scheduleId,
+      ),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return CircularProgressIndicator();
+        if (!snapshot.hasData || snapshot.data.documents.length == 0) {
+          return Column(
+            children: <Widget>[
+              SizedBox(height: 128.0),
+              Text(
+                'No Schedules Found :(',
+                style: TextStyle(
+                  fontSize: 24.0,
+                ),
+              ),
+            ],
+          );
+        }
         return ListView.builder(
           itemCount: snapshot.data.documents.length,
           itemBuilder: (context, index) {

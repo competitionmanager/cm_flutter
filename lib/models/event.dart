@@ -4,8 +4,6 @@ import 'package:cm_flutter/auth/auth_provider.dart';
 
 Event eventFromJson(String str) => Event.fromMap(json.decode(str));
 
-String eventToJson(Event data) => json.encode(data.toMap());
-
 class Event {
   String name;
   DateTime startTime;
@@ -13,6 +11,7 @@ class Event {
   String id;
   List<dynamic> subscribers;
   bool isUserSubscribed;
+  String description;
 
   Event({
     this.name,
@@ -21,6 +20,7 @@ class Event {
     this.id,
     this.subscribers,
     this.isUserSubscribed,
+    this.description
   });
 
   factory Event.fromMap(Map<String, dynamic> json) {
@@ -35,15 +35,10 @@ class Event {
       id: json["id"],
       subscribers: json["subscribers"],
       isUserSubscribed: isUserSubscribed,
+      description: json["description"],
     );
   }
 
-  Map<String, dynamic> toMap() => {
-        "name": name,
-        "startTime": startTime,
-        "endTime": endTime,
-        "id": id,
-      };
 
     String toString() {
       String output = '';
@@ -52,6 +47,7 @@ class Event {
       output += 'name: $name\n\t';
       output += 'subscribers: $subscribers\n\t';
       output += 'isUserSubscribed: $isUserSubscribed\n\t';
+      output += 'description: $description\n';
       output += '}\n';
       return output;
     }

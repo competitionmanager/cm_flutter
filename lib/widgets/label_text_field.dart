@@ -4,11 +4,14 @@ class LabelTextField extends StatefulWidget {
   final TextEditingController textController;
   final TextInputType textInputType;
   final String labelText;
+  final bool isParagraph;
 
-  LabelTextField(
-      {@required this.labelText,
-      @required this.textController,
-      this.textInputType = TextInputType.text});
+  LabelTextField({
+    @required this.labelText,
+    @required this.textController,
+    this.textInputType = TextInputType.text,
+    this.isParagraph = false,
+  });
 
   @override
   _LabelTextFieldState createState() => _LabelTextFieldState();
@@ -26,6 +29,7 @@ class _LabelTextFieldState extends State<LabelTextField> {
         ),
         SizedBox(height: 8.0),
         TextField(
+          maxLines: widget.isParagraph ? 3 : 1,
           controller: widget.textController,
           decoration: InputDecoration(
             border: OutlineInputBorder(),
@@ -44,6 +48,7 @@ class _LabelTextFieldState extends State<LabelTextField> {
                 : null,
           ),
           onChanged: (text) {
+            // Set state to make clear button visible.
             setState(() {});
           },
         ),

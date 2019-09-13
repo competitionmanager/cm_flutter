@@ -52,7 +52,14 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
           children: <Widget>[
             buildCreateForm(),
             Divider(color: Colors.black26),
-            buildCreateButton(context),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: 8.0,
+              ),
+              child: buildCreateButton(context),
+            ),
           ],
         ),
       ),
@@ -69,34 +76,31 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
     print("downloadURL: " + downloadURL);
   }
 
-  Padding buildCreateButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
-      child: ColorGradientButton(
-        text: 'Create Competition',
-        color: kMintyGreen,
-        onPressed: () async {
-          if (compDate != null &&
-              competitionNameController.text != '' &&
-              organizerController.text != '' &&
-              locationController.text != '' &&
-              competitionImage != null) {
-            await uploadToFirebaseStorage();
-            String id = db.addCompetition(
-              name: competitionNameController.text,
-              organizer: organizerController.text,
-              location: locationController.text,
-              date: compDate,
-              downloadURL: downloadURL,
-            );
-            Route route = MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  ViewCompetitionScreen(compId: id),
-            );
-            Navigator.of(context).pushReplacement(route);
-          }
-        },
-      ),
+  ColorGradientButton buildCreateButton(BuildContext context) {
+    return ColorGradientButton(
+      text: 'Create Competition',
+      color: kMintyGreen,
+      onPressed: () async {
+        if (compDate != null &&
+            competitionNameController.text != '' &&
+            organizerController.text != '' &&
+            locationController.text != '' &&
+            competitionImage != null) {
+          await uploadToFirebaseStorage();
+          String id = db.addCompetition(
+            name: competitionNameController.text,
+            organizer: organizerController.text,
+            location: locationController.text,
+            date: compDate,
+            downloadURL: downloadURL,
+          );
+          Route route = MaterialPageRoute(
+            builder: (BuildContext context) =>
+                ViewCompetitionScreen(compId: id),
+          );
+          Navigator.of(context).pushReplacement(route);
+        }
+      },
     );
   }
 
