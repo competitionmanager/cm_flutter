@@ -48,6 +48,26 @@ class _EventCardState extends State<EventCard> {
   }
 
   @override
+  void didUpdateWidget(EventCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Checks if user is subscribed to the events loaded
+    List<dynamic> subscribers = widget.event.subscribers;
+    AuthProvider auth = AuthProvider();
+    if (subscribers != null) {
+      if (subscribers.length == 0) isUserSubscribed = false;
+      subscribers.forEach((id) {
+        auth.getCurrentUser().then((user) {
+          if (user.uid == id) {
+            setState(() {
+              isUserSubscribed = true;
+            });
+          }
+        });
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     String startTime = DateFormat.jm().format(widget.event.startTime);
     String endTime = DateFormat.jm().format(widget.event.endTime);
@@ -55,24 +75,7 @@ class _EventCardState extends State<EventCard> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Container(
-          // Lines up times in a vertical line regardless of length
-          width: MediaQuery.of(context).size.width / 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Text(
-                startTime,
-                style: TextStyle(color: Colors.black54, fontSize: 16.0),
-              ),
-              SizedBox(height: 6.0),
-              Text(
-                endTime,
-                style: TextStyle(color: Colors.black54, fontSize: 16.0),
-              ),
-            ],
-          ),
-        ),
+        buildTimeContainer(startTime, endTime),
         SizedBox(width: 36.0),
         Expanded(
           child: Center(
@@ -88,6 +91,7 @@ class _EventCardState extends State<EventCard> {
                               widget.event.name,
                               style: TextStyle(
                                 fontSize: 16.0,
+                                fontWeight: FontWeight.w500
                               ),
                               overflow: TextOverflow.ellipsis,
                             )
@@ -95,16 +99,18 @@ class _EventCardState extends State<EventCard> {
                               'Empty',
                               style: TextStyle(
                                 fontSize: 16.0,
-                                color: Colors.black54
+                                color: Colors.black54,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                       SizedBox(height: 6.0),
                       Text(
-                        'On deck at ' +
-                            DateFormat.jm().format(widget.event.startTime
-                                .subtract(Duration(minutes: 20))),
-                        style: TextStyle(fontSize: 16.0, color: Colors.black54),
+                        widget.event.description,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.black54,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -126,16 +132,16 @@ class _EventCardState extends State<EventCard> {
                           if (!isUserSubscribed) {
                             FirebaseUser user =
                                 await authProvider.getCurrentUser();
-                            db.addSubscriber(
-                                widget.competition.id, widget.scheduleId, widget.event.id, user);
+                            db.addSubscriber(widget.competition.id,
+                                widget.scheduleId, widget.event.id, user);
                             setState(() {
                               isUserSubscribed = true;
                             });
                           } else {
                             FirebaseUser user =
                                 await authProvider.getCurrentUser();
-                            db.removeSubscriber(
-                                widget.competition.id, widget.scheduleId, widget.event.id, user);
+                            db.removeSubscriber(widget.competition.id,
+                                widget.scheduleId, widget.event.id, user);
                             setState(() {
                               isUserSubscribed = false;
                             });
@@ -143,24 +149,49 @@ class _EventCardState extends State<EventCard> {
                           widget.onPressed();
                         },
                       )
-                    : IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () {
-                          Route route = MaterialPageRoute(
-                            builder: (BuildContext context) => EditEventScreen(
-                              competition: widget.competition,
-                              scheduleId: widget.scheduleId,
-                              event: widget.event,
-                            ),
-                          );
-                          Navigator.of(context).push(route);
-                        },
-                      )
+                    : buildEditButton()
               ],
             ),
           ),
         )
       ],
+    );
+  }
+
+  Container buildTimeContainer(String startTime, String endTime) {
+    return Container(
+      // Lines up times in a vertical line regardless of length
+      width: MediaQuery.of(context).size.width / 5,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          Text(
+            startTime,
+            style: TextStyle(color: Colors.black, fontSize: 16.0),
+          ),
+          SizedBox(height: 6.0),
+          Text(
+            endTime,
+            style: TextStyle(color: Colors.black, fontSize: 16.0),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconButton buildEditButton() {
+    return IconButton(
+      icon: Icon(Icons.edit),
+      onPressed: () {
+        Route route = MaterialPageRoute(
+          builder: (BuildContext context) => EditEventScreen(
+            competition: widget.competition,
+            scheduleId: widget.scheduleId,
+            event: widget.event,
+          ),
+        );
+        Navigator.of(context).push(route);
+      },
     );
   }
 }

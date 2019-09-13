@@ -2,9 +2,10 @@ import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/schedule.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
+import 'package:cm_flutter/widgets/create_schedule_dialog.dart';
 import 'package:cm_flutter/widgets/label_drop_down.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
-import 'package:cm_flutter/widgets/time_dropdown_box.dart';
+import 'package:cm_flutter/widgets/label_time_dropdown_box.dart';
 import 'package:flutter/material.dart';
 
 class CreateMultipleEventsScreen extends StatefulWidget {
@@ -21,20 +22,26 @@ class CreateMultipleEventsScreen extends StatefulWidget {
 
   @override
   _CreateMultipleEventsScreenState createState() =>
-      _CreateMultipleEventsScreenState();
+      _CreateMultipleEventsScreenState(schedules: schedules);
 }
 
 class _CreateMultipleEventsScreenState
     extends State<CreateMultipleEventsScreen> {
+  List<Schedule> schedules;
+
   FirestoreProvider db;
+
   TextEditingController numTeamsController;
   TextEditingController eventDurationController;
   TextEditingController breakDurationController;
+  TextEditingController newScheduleNameController;
 
   TimeOfDay startTime;
   DateTime startDateTime;
 
   int currentIndex;
+
+  _CreateMultipleEventsScreenState({this.schedules});
 
   @override
   void initState() {
@@ -43,8 +50,13 @@ class _CreateMultipleEventsScreenState
     db = FirestoreProvider();
 
     numTeamsController = TextEditingController();
+    numTeamsController.text = '';
     eventDurationController = TextEditingController();
+    eventDurationController.text = '';
     breakDurationController = TextEditingController();
+    breakDurationController.text = '';
+    newScheduleNameController = TextEditingController();
+    newScheduleNameController.text = '';
 
     currentIndex = widget.currentTabIndex;
   }
@@ -59,31 +71,47 @@ class _CreateMultipleEventsScreenState
             buildCreateForm(),
             Divider(color: Colors.black26),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ColorGradientButton(
-                text: 'Create Event',
-                color: Color.fromRGBO(0, 210, 150, 1.0),
-                onPressed: () {
-                  if (startTime != null &&
-                      numTeamsController.text != '' &&
-                      eventDurationController.text != '' &&
-                      breakDurationController.text != '') {
-                    db.addEvents(
-                      compId: widget.competition.id,
-                      scheduleId: widget.schedules[currentIndex].id,
-                      startTime: startDateTime,
-                      numTeams: int.parse(numTeamsController.text),
-                      eventDuration: int.parse(eventDurationController.text),
-                      breakDuration: int.parse(breakDurationController.text),
-                    );
-                  }
-                  Navigator.of(context).pop();
-                },
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: 8.0,
               ),
+              child: buildCreateButton(),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  ColorGradientButton buildCreateButton() {
+    return ColorGradientButton(
+      text: 'Create Event',
+      color: Color.fromRGBO(0, 210, 150, 1.0),
+      onPressed: () {
+        if (startTime != null &&
+            numTeamsController.text != '' &&
+            eventDurationController.text != '' &&
+            breakDurationController.text != '') {
+          // If the user made a new schedule
+          if (newScheduleNameController.text != '') {
+            db.addSchedule(
+              compId: widget.competition.id,
+              name: newScheduleNameController.text,
+            );
+          }
+          db.addEvents(
+            compId: widget.competition.id,
+            scheduleId: widget.schedules[currentIndex].id,
+            startTime: startDateTime,
+            numTeams: int.parse(numTeamsController.text),
+            eventDuration: int.parse(eventDurationController.text),
+            breakDuration: int.parse(breakDurationController.text),
+          );
+
+          Navigator.of(context).pop();
+        }
+      },
     );
   }
 
@@ -101,68 +129,17 @@ class _CreateMultipleEventsScreenState
     }
   }
 
-  Widget buildTimeDropdownBox(TimeOfDay time) {
-    String text = '';
-    if (time != null) {
-      String hour = time.hourOfPeriod.toString();
-      if (hour == '0') hour = '12';
-      String minute;
-      time.minute < 10
-          ? minute = '0${time.minute.toString()}'
-          : minute = time.minute.toString();
-      String period = time.hour < 12 ? 'AM' : 'PM';
-      text = '$hour:$minute $period';
-    }
-    return GestureDetector(
-      onTap: () {
-        pickTime().then((date) {
-          if (date != null) {
-            setState(() {
-              startDateTime = date;
-              startTime = TimeOfDay.fromDateTime(date);
-            });
-          }
-        });
-      },
-      child: Container(
-        height: 50.0,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black12),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 16.0, right: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(
-                text,
-                style: TextStyle(fontSize: 16.0),
-              ),
-              Icon(Icons.arrow_drop_down),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Expanded buildCreateForm() {
     return Expanded(
       child: ListView(
-        // physics: NeverScrollableScrollPhysics(),
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  'Start Time',
-                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
-                ),
-                SizedBox(height: 8.0),
-                TimeDropdownBox(
+                LabelTimeDropdownBox(
+                  labelText: 'Start Time',
                   time: startTime,
                   onTap: () {
                     pickTime().then((date) {
@@ -196,8 +173,34 @@ class _CreateMultipleEventsScreenState
                 SizedBox(height: 16.0),
                 LabelDropDown(
                   labelText: "Schedule",
-                  schedules: widget.schedules,
+                  schedules: schedules,
                   dropDownButton: buildDropdownButton(),
+                  actionButton: IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => CreateScheduleDialog(
+                          textEditingController: newScheduleNameController,
+                          onCreatePressed: () {
+                            // TODO: Need error message pop up
+                            if (newScheduleNameController.text != '') {
+                              setState(() {
+                                schedules.add(
+                                  Schedule(
+                                    name: newScheduleNameController.text,
+                                  ),
+                                );
+                                currentIndex = schedules.length - 1;
+                              });
+                              // Upload new schedule tab and delete this item.
+                              Navigator.of(context).pop();
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),

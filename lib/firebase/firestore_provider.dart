@@ -138,12 +138,35 @@ class FirestoreProvider {
         .snapshots();
   }
 
+  // Adds a schedule to the given competition.
+  // Returns the id of the schedule.
+  String addSchedule({String compId, String name}) {
+    CollectionReference schedulesRef = firestore.collection('competitions').document(compId).collection('schedules');
+    String id = uuid.v4();
+    schedulesRef.document(id).setData({
+      'id': id,
+      'name': name,
+    });
+    return id;
+  }
+
   Stream<QuerySnapshot> getSchedules(String compId) {
     return firestore
         .collection('competitions')
         .document(compId)
         .collection('schedules')
         .snapshots();
+  }
+
+
+  void deleteSchedule({String compId, String scheduleId}) {
+
+    firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('schedules')
+        .document(scheduleId)
+        .delete();
   }
 
   String addEvent(String compId, String scheduleId, String name,
@@ -190,7 +213,8 @@ class FirestoreProvider {
         'startTime': eventStartTime,
         'endTime': eventStartTime.add(Duration(minutes: eventDuration)),
         'id': id,
-        'subscribers': []
+        'subscribers': [],
+        'description': '',
       });
       eventStartTime = eventStartTime.add(Duration(minutes: eventDuration));
       eventStartTime = eventStartTime.add(Duration(minutes: breakDuration));
@@ -198,7 +222,7 @@ class FirestoreProvider {
   }
 
   void updateEvent(String compId, String scheduleId, String eventId,
-      String name, DateTime startTime, DateTime endTime) {
+      String name, DateTime startTime, DateTime endTime, String description) {
     CollectionReference compEventsRef = firestore
         .collection('competitions')
         .document(compId)
@@ -209,6 +233,7 @@ class FirestoreProvider {
       'name': name,
       'startTime': startTime,
       'endTime': endTime,
+      'description': description,
     });
   }
 

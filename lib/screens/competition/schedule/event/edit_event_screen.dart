@@ -5,6 +5,7 @@ import 'package:cm_flutter/models/schedule.dart';
 import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
+import 'package:cm_flutter/widgets/label_time_dropdown_box.dart';
 import 'package:flutter/material.dart';
 
 class EditEventScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class EditEventScreen extends StatefulWidget {
 class _EditEventScreenState extends State<EditEventScreen> {
   FirestoreProvider db;
   TextEditingController eventNameController;
+  TextEditingController descriptionController;
   TimeOfDay startTime;
   TimeOfDay endTime;
   DateTime startDateTime;
@@ -40,6 +42,9 @@ class _EditEventScreenState extends State<EditEventScreen> {
         startTime.hour, startTime.minute);
     endDateTime = DateTime(eventDate.year, eventDate.month, eventDate.day,
         endTime.hour, endTime.minute);
+
+    descriptionController = TextEditingController();
+    descriptionController.text = widget.event.description;
   }
 
   @override
@@ -54,7 +59,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
               buildEditForm(),
               Divider(color: Colors.black26),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding:
+                    const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
                 child: ColorGradientButton(
                   text: 'Delete Event',
                   color: kWarningRed,
@@ -92,42 +98,57 @@ class _EditEventScreenState extends State<EditEventScreen> {
                   children: <Widget>[
                     Flexible(
                       flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'Start Time',
-                            style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
-                          ),
-                          SizedBox(height: 8.0),
-                          buildTimeDropdownBox(startTime, true),
-                        ],
+                      child: LabelTimeDropdownBox(
+                        labelText: 'Start Time',
+                        time: startTime,
+                        onTap: () {
+                          pickTime().then((date) {
+                            if (date != null) {
+                              setState(() {
+                                startDateTime = date;
+                                startTime = TimeOfDay.fromDateTime(date);
+                              });
+                            }
+                          });
+                        },
                       ),
                     ),
                     Flexible(
                       flex: 1,
                       child: Padding(
                         padding: const EdgeInsets.only(
-                            left: 8.0, right: 8.0, bottom: 15.0),
+                          left: 8.0,
+                          right: 8.0,
+                          bottom: 15.0,
+                        ),
                         child: Icon(Icons.arrow_forward),
                       ),
                     ),
                     Flexible(
                       flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'End Time',
-                            style: TextStyle(fontSize: 16.0),
-                          ),
-                          SizedBox(height: 8.0),
-                          buildTimeDropdownBox(endTime, false),
-                        ],
+                      child: LabelTimeDropdownBox(
+                        labelText: 'End Time',
+                        time: endTime,
+                        onTap: () {
+                          pickTime().then((date) {
+                            if (date != null) {
+                              setState(() {
+                                endDateTime = date;
+                                endTime = TimeOfDay.fromDateTime(date);
+                              });
+                            }
+                          });
+                        },
                       ),
                     ),
                   ],
-                )
+                ),
+                SizedBox(height: 16.0),
+                LabelTextField(
+                  labelText: 'Event Description',
+                  textController: descriptionController,
+                  isParagraph: true,
+                ),
               ],
             ),
           ),
@@ -148,59 +169,6 @@ class _EditEventScreenState extends State<EditEventScreen> {
           time.hour, time.minute);
       return date;
     }
-  }
-
-  Widget buildTimeDropdownBox(TimeOfDay time, bool isStartTime) {
-    String text = '';
-    if (time != null) {
-      String hour = time.hourOfPeriod.toString();
-      if (hour == '0') hour = '12';
-      String minute;
-      time.minute < 10
-          ? minute = '0${time.minute.toString()}'
-          : minute = time.minute.toString();
-      String period = time.hour < 12 ? 'AM' : 'PM';
-      text = '$hour:$minute $period';
-    }
-    return GestureDetector(
-      onTap: () {
-        pickTime().then((date) {
-          if (date != null) {
-            if (isStartTime) {
-              setState(() {
-                startDateTime = date;
-                startTime = TimeOfDay.fromDateTime(date);
-              });
-            } else {
-              setState(() {
-                endDateTime = date;
-                endTime = TimeOfDay.fromDateTime(date);
-              });
-            }
-          }
-        });
-      },
-      child: Container(
-        height: 50.0,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black12),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 16.0, right: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(
-                text,
-                style: TextStyle(fontSize: 16.0),
-              ),
-              Icon(Icons.arrow_drop_down),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   AppBar buildAppBar(BuildContext context) {
@@ -224,12 +192,14 @@ class _EditEventScreenState extends State<EditEventScreen> {
             ),
             onPressed: () {
               db.updateEvent(
-                  widget.competition.id,
-                  widget.scheduleId,
-                  widget.event.id,
-                  eventNameController.text,
-                  startDateTime,
-                  endDateTime);
+                widget.competition.id,
+                widget.scheduleId,
+                widget.event.id,
+                eventNameController.text,
+                startDateTime,
+                endDateTime,
+                descriptionController.text,
+              );
               Navigator.of(context).pop();
             },
           ),

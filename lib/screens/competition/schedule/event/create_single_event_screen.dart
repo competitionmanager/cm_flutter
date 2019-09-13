@@ -3,9 +3,10 @@ import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/schedule.dart';
 import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
+import 'package:cm_flutter/widgets/create_schedule_dialog.dart';
 import 'package:cm_flutter/widgets/label_drop_down.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
-import 'package:cm_flutter/widgets/time_dropdown_box.dart';
+import 'package:cm_flutter/widgets/label_time_dropdown_box.dart';
 import 'package:flutter/material.dart';
 
 class CreateSingleEventScreen extends StatefulWidget {
@@ -24,24 +25,34 @@ class CreateSingleEventScreen extends StatefulWidget {
 
   @override
   _CreateSingleEventScreenState createState() =>
-      _CreateSingleEventScreenState();
+      _CreateSingleEventScreenState(schedules: schedules);
 }
 
 class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
-  TextEditingController eventNameController;
+  List<Schedule> schedules;
+
   FirestoreProvider db;
+
   TimeOfDay startTime;
   TimeOfDay endTime;
   DateTime startDateTime;
   DateTime endDateTime;
 
+  TextEditingController eventNameController;
+  TextEditingController newScheduleNameController;
+
   int currentIndex;
+
+  _CreateSingleEventScreenState({this.schedules});
 
   @override
   void initState() {
     super.initState();
     db = FirestoreProvider();
     eventNameController = TextEditingController();
+    eventNameController.text = '';
+    newScheduleNameController = TextEditingController();
+    newScheduleNameController.text = '';
     currentIndex = widget.currentTabIndex;
   }
 
@@ -55,21 +66,34 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
             buildCreateForm(),
             Divider(color: Colors.black26),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: 8.0,
+              ),
               child: ColorGradientButton(
                 text: 'Create Event',
                 color: kMintyGreen,
                 onPressed: () {
-                  if (eventNameController.text != null &&
+                  if (eventNameController.text != 'null' &&
                       startDateTime != null &&
-                      endDateTime != null) {
+                      endDateTime != null &&
+                      schedules != null) {
+                    // If the user made a new schedule
+                    if (newScheduleNameController.text != '') {
+                      db.addSchedule(
+                        compId: widget.competition.id,
+                        name: newScheduleNameController.text,
+                      );
+                    }
                     db.addEvent(
                       widget.competition.id,
-                      widget.schedules[currentIndex].id,
+                      schedules[currentIndex].id,
                       eventNameController.text,
                       startDateTime,
                       endDateTime,
                     );
+                    // Upload new schedule tab and delete this item.
                     Navigator.of(context).pop();
                   }
                 },
@@ -115,30 +139,19 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
                   children: <Widget>[
                     Flexible(
                       flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'Start Time',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                          ),
-                          SizedBox(height: 8.0),
-                          TimeDropdownBox(
-                            time: startTime,
-                            onTap: () {
-                              pickTime().then((date) {
-                                if (date != null) {
-                                  setState(() {
-                                    startDateTime = date;
-                                    startTime = TimeOfDay.fromDateTime(date);
-                                  });
-                                }
+                      child: LabelTimeDropdownBox(
+                        labelText: 'Start Time',
+                        time: startTime,
+                        onTap: () {
+                          pickTime().then((date) {
+                            if (date != null) {
+                              setState(() {
+                                startDateTime = date;
+                                startTime = TimeOfDay.fromDateTime(date);
                               });
-                            },
-                          ),
-                        ],
+                            }
+                          });
+                        },
                       ),
                     ),
                     Flexible(
@@ -151,30 +164,19 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
                     ),
                     Flexible(
                       flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'End Time',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                            ),
-                          ),
-                          SizedBox(height: 8.0),
-                          TimeDropdownBox(
-                            time: endTime,
-                            onTap: () {
-                              pickTime().then((date) {
-                                if (date != null) {
-                                  setState(() {
-                                    endDateTime = date;
-                                    endTime = TimeOfDay.fromDateTime(date);
-                                  });
-                                }
+                      child: LabelTimeDropdownBox(
+                        labelText: 'End Time',
+                        time: endTime,
+                        onTap: () {
+                          pickTime().then((date) {
+                            if (date != null) {
+                              setState(() {
+                                endDateTime = date;
+                                endTime = TimeOfDay.fromDateTime(date);
                               });
-                            },
-                          ),
-                        ],
+                            }
+                          });
+                        },
                       ),
                     ),
                   ],
@@ -182,8 +184,34 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
                 SizedBox(height: 16.0),
                 LabelDropDown(
                   labelText: "Schedule",
-                  schedules: widget.schedules,
+                  schedules: schedules,
                   dropDownButton: buildDropdownButton(),
+                  actionButton: IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => CreateScheduleDialog(
+                          textEditingController: newScheduleNameController,
+                          onCreatePressed: () {
+                            // TODO: Need error message pop up
+                            if (newScheduleNameController.text != '') {
+                              setState(() {
+                                schedules.add(
+                                  Schedule(
+                                    name: newScheduleNameController.text,
+                                  ),
+                                );
+                                currentIndex = schedules.length - 1;
+                              });
+                              // Upload new schedule tab and delete this item.
+                              Navigator.of(context).pop();
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
@@ -209,13 +237,13 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
 
   List<DropdownMenuItem> getMenuItems() {
     List<DropdownMenuItem> items = List();
-    for (int i = 0; i < widget.schedules.length; i++) {
+    for (int i = 0; i < schedules.length; i++) {
       items.add(
         DropdownMenuItem(
           child: Container(
             child: Padding(
               padding: const EdgeInsets.only(left: 8.0),
-              child: Text(widget.schedules[i].name),
+              child: Text(schedules[i].name),
             ),
           ),
           value: i,
