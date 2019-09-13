@@ -21,7 +21,7 @@ class EventCard extends StatefulWidget {
 
 class _EventCardState extends State<EventCard> {
   final FirestoreProvider db = FirestoreProvider();
-  bool isEditing = false; // Debugging purposes for now
+  bool isEditing = true; // Debugging purposes for now
 
   final AuthProvider authProvider = AuthProvider();
 
@@ -50,11 +50,11 @@ class _EventCardState extends State<EventCard> {
   @override
   void didUpdateWidget(EventCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     // Checks if user is subscribed to the events loaded
     List<dynamic> subscribers = widget.event.subscribers;
     AuthProvider auth = AuthProvider();
     if (subscribers != null) {
+      if (subscribers.length == 0) isUserSubscribed = false;
       subscribers.forEach((id) {
         auth.getCurrentUser().then((user) {
           if (user.uid == id) {
@@ -69,7 +69,6 @@ class _EventCardState extends State<EventCard> {
 
   @override
   Widget build(BuildContext context) {
-    print('${widget.event.name}: $isUserSubscribed');
     String startTime = DateFormat.jm().format(widget.event.startTime);
     String endTime = DateFormat.jm().format(widget.event.endTime);
     return Row(
@@ -92,6 +91,7 @@ class _EventCardState extends State<EventCard> {
                               widget.event.name,
                               style: TextStyle(
                                 fontSize: 16.0,
+                                fontWeight: FontWeight.w500
                               ),
                               overflow: TextOverflow.ellipsis,
                             )

@@ -213,7 +213,8 @@ class FirestoreProvider {
         'startTime': eventStartTime,
         'endTime': eventStartTime.add(Duration(minutes: eventDuration)),
         'id': id,
-        'subscribers': []
+        'subscribers': [],
+        'description': '',
       });
       eventStartTime = eventStartTime.add(Duration(minutes: eventDuration));
       eventStartTime = eventStartTime.add(Duration(minutes: breakDuration));
