@@ -2,6 +2,7 @@ import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/schedule.dart';
 import 'package:cm_flutter/styles/colors.dart';
+import 'package:cm_flutter/utils/datetime_provider.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/create_schedule_dialog.dart';
 import 'package:cm_flutter/widgets/label_drop_down.dart';
@@ -32,6 +33,7 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
   List<Schedule> schedules;
 
   FirestoreProvider db;
+  DateTimeProvider dateTimeProvider;
 
   TimeOfDay startTime;
   TimeOfDay endTime;
@@ -49,6 +51,7 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
   void initState() {
     super.initState();
     db = FirestoreProvider();
+    dateTimeProvider = DateTimeProvider();
     eventNameController = TextEditingController();
     eventNameController.text = '';
     newScheduleNameController = TextEditingController();
@@ -80,12 +83,6 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
                       endDateTime != null &&
                       schedules != null) {
                     // If the user made a new schedule
-                    if (newScheduleNameController.text != '') {
-                      db.addSchedule(
-                        compId: widget.competition.id,
-                        name: newScheduleNameController.text,
-                      );
-                    }
                     db.addEvent(
                       widget.competition.id,
                       schedules[currentIndex].id,
@@ -93,6 +90,7 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
                       startDateTime,
                       endDateTime,
                     );
+                    print('event added');
                     // Upload new schedule tab and delete this item.
                     Navigator.of(context).pop();
                   }
@@ -103,20 +101,6 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
         ),
       ),
     );
-  }
-
-  Future<DateTime> pickTime() async {
-    TimeOfDay time = await showTimePicker(
-      context: context,
-      initialTime: startTime != null ? startTime : TimeOfDay.now(),
-    );
-
-    DateTime eventDate = widget.competition.date;
-    if (time != null) {
-      DateTime date = DateTime(eventDate.year, eventDate.month, eventDate.day,
-          time.hour, time.minute);
-      return date;
-    }
   }
 
   // Builds the description text and the text field.
@@ -143,7 +127,9 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
                         labelText: 'Start Time',
                         time: startTime,
                         onTap: () {
-                          pickTime().then((date) {
+                          dateTimeProvider
+                              .pickTime(context, widget.competition.date)
+                              .then((date) {
                             if (date != null) {
                               setState(() {
                                 startDateTime = date;
@@ -168,7 +154,9 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
                         labelText: 'End Time',
                         time: endTime,
                         onTap: () {
-                          pickTime().then((date) {
+                          dateTimeProvider
+                              .pickTime(context, widget.competition.date)
+                              .then((date) {
                             if (date != null) {
                               setState(() {
                                 endDateTime = date;
@@ -196,9 +184,14 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
                           onCreatePressed: () {
                             // TODO: Need error message pop up
                             if (newScheduleNameController.text != '') {
+                              String id = db.addSchedule(
+                                compId: widget.competition.id,
+                                name: newScheduleNameController.text,
+                              );
                               setState(() {
                                 schedules.add(
                                   Schedule(
+                                    id: id,
                                     name: newScheduleNameController.text,
                                   ),
                                 );

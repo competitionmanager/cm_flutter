@@ -5,10 +5,7 @@ import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/date_dropdown_box.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as prefix0;
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:path/path.dart' as Path;
 
 import 'dart:async';
 import 'dart:io';
@@ -66,16 +63,6 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
     );
   }
 
-  Future uploadToFirebaseStorage() async {
-    String fileName = Path.basename(competitionImage.path);
-    StorageReference firebaseStorageRef =
-        FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = firebaseStorageRef.putFile(competitionImage);
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
-    downloadURL = await taskSnapshot.ref.getDownloadURL();
-    print("downloadURL: " + downloadURL);
-  }
-
   ColorGradientButton buildCreateButton(BuildContext context) {
     return ColorGradientButton(
       text: 'Create Competition',
@@ -86,7 +73,6 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
             organizerController.text != '' &&
             locationController.text != '' &&
             competitionImage != null) {
-          await uploadToFirebaseStorage();
           String id = db.addCompetition(
             name: competitionNameController.text,
             organizer: organizerController.text,
@@ -94,6 +80,7 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
             date: compDate,
             downloadURL: downloadURL,
           );
+          if (id != null) db.uploadToFirebaseStorage(competitionImage, id);
           Route route = MaterialPageRoute(
             builder: (BuildContext context) =>
                 ViewCompetitionScreen(compId: id),
