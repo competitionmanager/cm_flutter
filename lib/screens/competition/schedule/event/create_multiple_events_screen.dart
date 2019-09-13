@@ -1,6 +1,7 @@
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/schedule.dart';
+import 'package:cm_flutter/utils/datetime_provider.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/create_schedule_dialog.dart';
 import 'package:cm_flutter/widgets/label_drop_down.dart';
@@ -29,6 +30,7 @@ class _CreateMultipleEventsScreenState
     extends State<CreateMultipleEventsScreen> {
   List<Schedule> schedules;
 
+  DateTimeProvider dateTimeProvider;
   FirestoreProvider db;
 
   TextEditingController numTeamsController;
@@ -46,6 +48,8 @@ class _CreateMultipleEventsScreenState
   @override
   void initState() {
     super.initState();
+
+    dateTimeProvider = DateTimeProvider();
 
     db = FirestoreProvider();
 
@@ -93,13 +97,6 @@ class _CreateMultipleEventsScreenState
             numTeamsController.text != '' &&
             eventDurationController.text != '' &&
             breakDurationController.text != '') {
-          // If the user made a new schedule
-          if (newScheduleNameController.text != '') {
-            db.addSchedule(
-              compId: widget.competition.id,
-              name: newScheduleNameController.text,
-            );
-          }
           db.addEvents(
             compId: widget.competition.id,
             scheduleId: widget.schedules[currentIndex].id,
@@ -142,7 +139,9 @@ class _CreateMultipleEventsScreenState
                   labelText: 'Start Time',
                   time: startTime,
                   onTap: () {
-                    pickTime().then((date) {
+                    dateTimeProvider
+                        .pickTime(context, widget.competition.date)
+                        .then((date) {
                       if (date != null) {
                         setState(() {
                           startDateTime = date;
@@ -185,9 +184,14 @@ class _CreateMultipleEventsScreenState
                           onCreatePressed: () {
                             // TODO: Need error message pop up
                             if (newScheduleNameController.text != '') {
+                              String id = db.addSchedule(
+                                compId: widget.competition.id,
+                                name: newScheduleNameController.text,
+                              );
                               setState(() {
                                 schedules.add(
                                   Schedule(
+                                    id: id,
                                     name: newScheduleNameController.text,
                                   ),
                                 );

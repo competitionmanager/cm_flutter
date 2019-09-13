@@ -9,7 +9,6 @@ import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class ViewCompetitionScreen extends StatefulWidget {
   final String compId;
@@ -88,13 +87,13 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   }
 
   Container buildPhotoContainer(BuildContext context) {
-    if (competition.image_url == null) {
+    if (competition.imageUrl == null) {
       // If image_url has not loaded yet
       return Container(
         height: MediaQuery.of(context).size.height / 3,
         color: Colors.black26,
       );
-    } else if (competition.image_url == '') {
+    } else if (competition.imageUrl == '') {
       // If image_url is empty
       return Container(
         height: MediaQuery.of(context).size.height / 3,
@@ -115,7 +114,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
         color: Colors.black26,
         height: MediaQuery.of(context).size.height / 3,
         // Get image from Firebase Storage
-        child: Image.network(competition.image_url, fit: BoxFit.cover),
+        child: Image.network(competition.imageUrl, fit: BoxFit.cover),
       );
     }
   }

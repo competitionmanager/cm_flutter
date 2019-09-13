@@ -1,13 +1,16 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_firestore/cloud_firestore.dart' as prefix0;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
+import 'package:path/path.dart';
 
 class FirestoreProvider {
   Firestore firestore = Firestore.instance;
   Uuid uuid = Uuid();
+
+  /* Teams */
 
   Stream<QuerySnapshot> getTeams() {
     return firestore.collection('teams').snapshots();
@@ -71,6 +74,8 @@ class FirestoreProvider {
     });
   }
 
+  /* Competitions */
+
   Stream<DocumentSnapshot> getCompetitionStream(String compId) {
     return firestore.collection('competitions').document(compId).snapshots();
   }
@@ -97,35 +102,12 @@ class FirestoreProvider {
       'location': location,
       'date': date,
       'description': 'Description of the $name',
-      'image_url': downloadURL
+      'imageUrl': downloadURL
     });
     return id;
   }
 
-  void addDummyCompetition() {
-    CollectionReference compsRef = firestore.collection('competitions');
-
-    String id = uuid.v4();
-    compsRef.document(id).setData({
-      'id': id,
-      'name': 'Prelude East Coast 2019',
-      'organizer': 'Project D Dance Company',
-      'description':
-          'Prelude EC, hosted by Project D, is one of the biggest dance competitions in the NY/NJ dance community.',
-      'date': 'Sat, December 10th, 2019',
-      'location': 'Sacaucus, New Jersey',
-    });
-    id = uuid.v4();
-    compsRef.document(id).setData({
-      'id': id,
-      'name': 'Reign or Shine 2019',
-      'organizer': 'NJIT ',
-      'description':
-          'Prelude EC, hosted by Project D, is one of the biggest dance competitions in the NY/NJ dance community.',
-      'date': 'Sat, December 10th, 2019',
-      'location': 'Sacaucus, New Jersey',
-    });
-  }
+  /* Schedule */
 
   Stream<QuerySnapshot> getSchedule({String compId, String scheduleId}) {
     return firestore
@@ -160,7 +142,6 @@ class FirestoreProvider {
 
 
   void deleteSchedule({String compId, String scheduleId}) {
-
     firestore
         .collection('competitions')
         .document(compId)
@@ -168,6 +149,8 @@ class FirestoreProvider {
         .document(scheduleId)
         .delete();
   }
+
+  /* Event */
 
   String addEvent(String compId, String scheduleId, String name,
       DateTime startTime, DateTime endTime) {
@@ -277,6 +260,8 @@ class FirestoreProvider {
     });
   }
 
+  /* Other */
+
   void addNewUser(FirebaseUser user) {
     DocumentReference userRef =
         firestore.collection('users').document(user.uid);
@@ -295,5 +280,17 @@ class FirestoreProvider {
 
     tokenRef
         .updateData({'token': fcmToken, 'platform': Platform.operatingSystem});
+  }
+
+  Future uploadToFirebaseStorage(File competitionImage, String compId) async {
+    String fileName = basename(competitionImage.path);
+    StorageReference firebaseStorageRef =
+        FirebaseStorage.instance.ref().child(fileName);
+    StorageUploadTask uploadTask = firebaseStorageRef.putFile(competitionImage);
+    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+
+    Map<String, dynamic> data = {'imageUrl': downloadUrl};
+    updateCompetition(compId, data);
   }
 }

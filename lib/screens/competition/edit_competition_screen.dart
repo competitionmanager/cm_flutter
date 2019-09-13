@@ -6,8 +6,6 @@ import 'package:cm_flutter/widgets/date_dropdown_box.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:path/path.dart' as Path;
 
 import 'dart:async';
 import 'dart:io';
@@ -68,19 +66,6 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
     );
   }
 
-  Future uploadToFirebaseStorage() async {
-    String fileName = Path.basename(competitionImage.path);
-    StorageReference firebaseStorageRef =
-        FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = firebaseStorageRef.putFile(competitionImage);
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
-    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-
-    Map<String, dynamic> data = {'image_url': downloadUrl};
-    db.updateCompetition(widget.competition.id, data);
-    print("downloadUrl = " + downloadUrl);
-  }
-
   ColorGradientButton buildDeleteButton(BuildContext context) {
     return ColorGradientButton(
       text: 'Delete Competition',
@@ -91,47 +76,82 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
     );
   }
 
-  Container buildPhotoContainer(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height / 3,
-      color: Color.fromRGBO(0, 0, 0, 0.5),
-      child: GestureDetector(
-          onTap: () {
-            uploadImage(context);
-          },
-          child: getImage()),
-    );
-  }
-
-  Widget getImage() {
-    if (competitionImage == null) {
-      if (competition.image_url != null) {
-        // Get image from Firebase Storage
-        print("Edit competition image URL: " + competition.image_url);
-        return Image.network(competition.image_url, fit: BoxFit.cover);
-      } else {
-        return Container(
-          width: 100.0,
-          height: 40.0,
+  Widget buildPhotoContainer(BuildContext context) {
+    if (competition.imageUrl == null) {
+      // If image_url has not loaded yet
+      return Container(
+        height: MediaQuery.of(context).size.height / 3,
+        color: Colors.black26,
+      );
+    } else if (competition.imageUrl == '' && competitionImage == null) {
+      // If image_url is empty
+      return GestureDetector(
+        onTap: () {
+          uploadImage(context);
+        },
+        child: Container(
+          height: MediaQuery.of(context).size.height / 3,
           decoration: BoxDecoration(
-            color: Colors.transparent,
-            border: Border.all(color: Colors.white),
-            borderRadius: BorderRadius.circular(5.0),
+            color: Colors.black26,
           ),
           child: Center(
-            child: Text(
-              'Upload photo',
-              style: TextStyle(color: Colors.white),
+            child: Container(
+              width: 100.0,
+              height: 40.0,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(color: Colors.white),
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+              child: Center(
+                child: Text(
+                  'Upload photo',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
           ),
-        );
-      }
+        ),
+      );
     } else {
-      return Image.file(competitionImage, fit: BoxFit.cover);
+      // If there is an image to display
+      return GestureDetector(
+        onTap: () {
+          uploadImage(context);
+        },
+        child: Container(
+          height: MediaQuery.of(context).size.height / 3,
+          child: Stack(
+            fit: StackFit.expand,
+            children: <Widget>[
+              competitionImage == null
+                  ? Image.network(competition.imageUrl, fit: BoxFit.cover)
+                  : Image.file(competitionImage, fit: BoxFit.cover),
+              Center(
+                child: Container(
+                  width: 100.0,
+                  height: 40.0,
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(0, 0, 0, 0.5),
+                    border: Border.all(color: Colors.white),
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Edit photo',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
   }
 
-  Future uploadImage(BuildContext context) async {
+  Future<void> uploadImage(BuildContext context) async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
     setState(() {
@@ -236,7 +256,8 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
 
                 db.updateCompetition(widget.competition.id, data);
                 if (competitionImage != null) {
-                  uploadToFirebaseStorage();
+                  db.uploadToFirebaseStorage(
+                      competitionImage, widget.competition.id);
                 }
                 Navigator.pop(context);
               }

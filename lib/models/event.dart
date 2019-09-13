@@ -45,6 +45,8 @@ class Event {
       output += 'Event Object: {\n\t';
       output += 'id: $id\n';
       output += 'name: $name\n\t';
+      output += 'startTime: $startTime\n';
+      output += 'endTime: $endTime\n';
       output += 'subscribers: $subscribers\n\t';
       output += 'isUserSubscribed: $isUserSubscribed\n\t';
       output += 'description: $description\n';
