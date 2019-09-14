@@ -13,7 +13,7 @@ import 'dart:async';
 import 'dart:io';
 
 class CreateCompetitionScreen extends StatefulWidget {
-  FirebaseUser user;
+  final FirebaseUser user;
 
   CreateCompetitionScreen(this.user);
 
@@ -29,7 +29,7 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
   TextEditingController locationController;
   DateTime compDate;
   File competitionImage;
-  String downloadURL;
+  String imageUrl;
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
     locationController = TextEditingController();
     locationController.text = '';
     compDate = DateTime.now();
-    downloadURL = '';
+    imageUrl = '';
   }
 
   @override
@@ -85,10 +85,14 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
             organizer: organizerController.text,
             location: locationController.text,
             date: compDate,
-            downloadURL: downloadURL,
+            imageUrl: imageUrl,
             admins: admins,
           );
-          if (comp.id != null) db.uploadToFirebaseStorage(competitionImage, comp.id);
+          if (comp.id != null) {
+            String picUrl = await db.uploadToFirebaseStorage(competitionImage, comp.id);
+            comp.imageUrl = picUrl;
+            db.saveCompetition(comp);
+          }
           Route route = MaterialPageRoute(
             builder: (BuildContext context) =>
                 ViewCompetitionScreen(comp, widget.user),

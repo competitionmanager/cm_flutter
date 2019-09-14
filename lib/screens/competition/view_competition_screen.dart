@@ -108,7 +108,10 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
         color: Colors.black26,
         height: MediaQuery.of(context).size.height / 3,
         // Get image from Firebase Storage
-        child: Image.network(competition.imageUrl, fit: BoxFit.cover),
+        child: Hero(
+          tag: 'imageHero',
+          child: Image.network(competition.imageUrl, fit: BoxFit.cover),
+        ),
       );
     }
   }
@@ -134,7 +137,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
                     ),
                     SizedBox(height: 12.0),
                     Text(
-                      'by ${competition.organizer}',
+                      'Hosted by ${competition.organizer}',
                       style: TextStyle(
                         fontSize: 18.0,
                         color: Colors.black54,

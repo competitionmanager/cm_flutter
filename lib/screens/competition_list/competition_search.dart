@@ -4,6 +4,7 @@ import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/screens/competition/view_competition_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CompetitionSearch extends SearchDelegate<String> {
   final FirebaseUser user;
@@ -13,13 +14,26 @@ class CompetitionSearch extends SearchDelegate<String> {
     db = FirestoreProvider();
   }
 
+  // @override
+  // ThemeData appBarTheme(BuildContext context) {
+  //   final ThemeData theme = Theme.of(context).copyWith(
+  //     appBarTheme: AppBarTheme(
+  //       color: Colors.white,
+  //       elevation: 0.0,
+  //     ),
+  //   );
+  //   return theme;
+  // }
+
   @override
   List<Widget> buildActions(BuildContext context) {
     // Actions for app bar
     return [
       IconButton(
         icon: Icon(Icons.clear),
-        onPressed: () {},
+        onPressed: () {
+          query = '';
+        },
       ),
     ];
   }
@@ -27,15 +41,7 @@ class CompetitionSearch extends SearchDelegate<String> {
   @override
   Widget buildLeading(BuildContext context) {
     // Leading icon on the left of the app bar
-    return IconButton(
-      icon: AnimatedIcon(
-        icon: AnimatedIcons.menu_arrow,
-        progress: transitionAnimation,
-      ),
-      onPressed: () {
-        close(context, null);
-      },
-    );
+    return BackButton();
   }
 
   @override
@@ -63,7 +69,7 @@ class CompetitionSearch extends SearchDelegate<String> {
         return ListView.builder(
           itemCount: comps.length,
           itemBuilder: (context, index) {
-            return _buildItem(
+            return buildItem(
               context,
               comps[index],
             );
@@ -73,29 +79,30 @@ class CompetitionSearch extends SearchDelegate<String> {
     );
   }
 
-  ListTile _buildItem(BuildContext context, Competition comp) {
+  ListTile buildItem(BuildContext context, Competition comp) {
     // Construct a row with the competition name.
     return ListTile(
       onTap: () {
         Route route = MaterialPageRoute(
-          builder: (BuildContext context) =>
-              ViewCompetitionScreen(comp, user),
+          builder: (BuildContext context) => ViewCompetitionScreen(comp, user),
         );
         Navigator.of(context).push(route);
       },
-      leading: Icon(Icons.event),
       title: RichText(
         text: TextSpan(
-          text: comp.name.substring(0, query.length),
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.black),
           children: [
             TextSpan(
+              text: comp.name.substring(0, query.length),
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextSpan(
               text: comp.name.substring(query.length),
-              style: TextStyle(color: Colors.grey),
             )
           ],
         ),
       ),
+      subtitle: Text(DateFormat('EEE, MMMM d, yyyy').format(comp.date)),
     );
   }
 }

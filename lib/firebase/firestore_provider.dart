@@ -88,6 +88,14 @@ class FirestoreProvider {
         .snapshots();
   }
 
+  Stream<QuerySnapshot> getSavedCompetitions(String userId) {
+    return firestore
+        .collection('users')
+        .document(userId)
+        .collection('competitions')
+        .snapshots();
+  }
+
   void updateCompetition(String compId, Map<String, dynamic> data) {
     firestore.collection('competitions').document(compId).updateData(data);
   }
@@ -101,7 +109,7 @@ class FirestoreProvider {
       String organizer,
       String location,
       DateTime date,
-      String downloadURL,
+      String imageUrl,
       List<String> admins}) {
     CollectionReference teamsRef = firestore.collection('competitions');
     String id = uuid.v4();
@@ -112,7 +120,7 @@ class FirestoreProvider {
       'location': location,
       'date': date,
       'description': 'Description of the $name',
-      'imageUrl': downloadURL,
+      'imageUrl': imageUrl,
       'admins': admins,
     };
     teamsRef.document(id).setData(competitionData);
@@ -126,6 +134,26 @@ class FirestoreProvider {
       imageUrl: competitionData["imageUrl"],
       admins: admins,
     );
+  }
+
+  void saveCompetition(Competition competition) {
+    CollectionReference usersRef = firestore.collection('users');
+    Map<String, dynamic> competitionData = {
+      'id': competition.id,
+      'name': competition.name,
+      'organizer': competition.organizer,
+      'location': competition.location,
+      'date': competition.date,
+      'description': competition.description,
+      'imageUrl': competition.imageUrl,
+      'admins': competition.admins,
+    };
+    // TODO replace hard coded user id with real user id
+    usersRef
+        .document('9dYvUMHDEIemQXmIw4zCOygAJrJ3')
+        .collection('competitions')
+        .document(competition.id)
+        .setData(competitionData);
   }
 
   /* Schedule */
@@ -305,7 +333,8 @@ class FirestoreProvider {
         .updateData({'token': fcmToken, 'platform': Platform.operatingSystem});
   }
 
-  Future uploadToFirebaseStorage(File competitionImage, String compId) async {
+  Future<String> uploadToFirebaseStorage(File competitionImage, String compId) async {
+    // Randomize file name.
     String fileName = basename(competitionImage.path);
     StorageReference firebaseStorageRef =
         FirebaseStorage.instance.ref().child(fileName);
@@ -315,5 +344,6 @@ class FirestoreProvider {
 
     Map<String, dynamic> data = {'imageUrl': downloadUrl};
     updateCompetition(compId, data);
+    return downloadUrl;
   }
 }

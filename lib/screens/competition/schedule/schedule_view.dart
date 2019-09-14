@@ -43,30 +43,35 @@ class _ScheduleViewState extends State<ScheduleView> {
             ),
           ),
         ),
-        Divider(
-          color: Colors.black26,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-            bottom: 8.0,
-          ),
-          child: Visibility(
-            child: ColorGradientButton(
-              text: 'Delete Schedule',
-              color: kWarningRed,
-              onPressed: () {
-                db.deleteSchedule(
-                  compId: widget.competition.id,
-                  scheduleId: widget.data.documents[currentTabIndex].data['id'],
-                );
-                setState(() {
-                  currentTabIndex = 0;
-                });
-              },
-            ),
-            visible: widget.competition.admins.contains(widget.user.uid),
+        Visibility(
+          visible: widget.competition.admins.contains(widget.user.uid),
+          child: Column(
+            children: <Widget>[
+              Divider(
+                color: Colors.black26,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  bottom: 8.0,
+                ),
+                child: ColorGradientButton(
+                  text: 'Delete Schedule',
+                  color: kWarningRed,
+                  onPressed: () {
+                    db.deleteSchedule(
+                      compId: widget.competition.id,
+                      scheduleId:
+                          widget.data.documents[currentTabIndex].data['id'],
+                    );
+                    setState(() {
+                      currentTabIndex = 0;
+                    });
+                  },
+                ),
+              )
+            ],
           ),
         )
       ],
