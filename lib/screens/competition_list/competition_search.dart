@@ -61,7 +61,8 @@ class CompetitionSearch extends SearchDelegate<String> {
         List<Competition> comps = new List();
         for (DocumentSnapshot doc in snapshot.data.documents) {
           Competition comp = Competition.fromMap(doc.data);
-          if (comp.name.startsWith(query)) {
+
+          if (comp.name.toLowerCase().startsWith(query.toLowerCase())) {
             comps.add(comp);
           }
         }
