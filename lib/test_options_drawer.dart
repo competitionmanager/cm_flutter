@@ -1,5 +1,4 @@
 import 'package:cm_flutter/screens/competition/create_competition.dart';
-import 'package:cm_flutter/screens/competition/view_competitions_screen.dart';
 import 'package:cm_flutter/screens/login/login_screen.dart';
 import 'package:cm_flutter/screens/team/create_team_screen.dart';
 import 'package:cm_flutter/screens/team/view_teams_screen.dart';
@@ -21,36 +20,6 @@ class TestOptionsDrawer extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16.0),
-            ListTile(
-              title: Text(
-                'Create a Competition',
-                style: TextStyle(
-                  fontSize: 24.0
-                ),
-              ),
-              onTap: () {
-                Route route = MaterialPageRoute(
-                  builder: (BuildContext context) => CreateCompetitionScreen()
-                );
-                Navigator.of(context).pop(route);
-                Navigator.of(context).push(route);
-              },
-            ),
-            ListTile(
-              title: Text(
-                'View Competitions',
-                style: TextStyle(
-                  fontSize: 24.0
-                ),
-              ),
-              onTap: () {
-                Route route = MaterialPageRoute(
-                  builder: (BuildContext context) => ViewCompetitionsScreen()
-                );
-                Navigator.of(context).pop(route);
-                Navigator.of(context).push(route);
-              },
-            ),
             ListTile(
               title: Text(
                 'Login',

@@ -5,12 +5,14 @@ import 'package:cm_flutter/models/schedule.dart';
 import 'package:cm_flutter/screens/competition/schedule/event/create_multiple_events_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/event/create_single_event_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/schedule_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ViewScheduleScreen extends StatefulWidget {
   final Competition competition;
+  final FirebaseUser user;
 
-  ViewScheduleScreen({this.competition});
+  ViewScheduleScreen({this.competition, this.user});
 
   @override
   _ViewScheduleScreenState createState() => _ViewScheduleScreenState();
@@ -41,6 +43,7 @@ class _ViewScheduleScreenState extends State<ViewScheduleScreen> {
                     child: ScheduleView(
                       competition: widget.competition,
                       data: snapshot.data,
+                      user: widget.user,
                     ),
                   )
                 ],
@@ -64,21 +67,24 @@ class _ViewScheduleScreenState extends State<ViewScheduleScreen> {
       elevation: 1.0,
       iconTheme: IconThemeData(color: Colors.black),
       actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.add,
-            color: Colors.black,
-            size: 32.0,
+        Visibility(
+          child: IconButton(
+            icon: Icon(
+              Icons.add,
+              color: Colors.black,
+              size: 32.0,
+            ),
+            onPressed: () {
+              if (data != null) {
+                buildModalBottomSheet(
+                  context,
+                  documents: data.documents,
+                );
+              }
+            },
           ),
-          onPressed: () {
-            if (data != null) {
-              buildModalBottomSheet(
-                context,
-                documents: data.documents,
-              );
-            }
-          },
-        ),
+          visible: widget.competition.admins.contains(widget.user.uid)
+        )
       ],
     );
   }

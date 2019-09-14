@@ -12,8 +12,9 @@ class EventCard extends StatefulWidget {
   final String scheduleId;
   final Competition competition;
   final VoidCallback onPressed;
+  final FirebaseUser user;
 
-  EventCard({this.competition, this.scheduleId, this.event, this.onPressed});
+  EventCard({this.competition, this.scheduleId, this.event, this.onPressed, this.user});
 
   @override
   _EventCardState createState() => _EventCardState();
@@ -21,15 +22,16 @@ class EventCard extends StatefulWidget {
 
 class _EventCardState extends State<EventCard> {
   final FirestoreProvider db = FirestoreProvider();
-  bool isEditing = true; // Debugging purposes for now
-
   final AuthProvider authProvider = AuthProvider();
+  bool isEditing = false;
 
   bool isUserSubscribed = false;
 
   @override
   void initState() {
     super.initState();
+    isEditing = widget.competition.admins.contains(widget.user.uid); // Debugging purposes for now
+
 
     // Checks if user is subscribed to the events loaded.
     List<dynamic> subscribers = widget.event.subscribers;
