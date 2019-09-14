@@ -81,7 +81,10 @@ class FirestoreProvider {
   }
 
   Stream<QuerySnapshot> getCompetitions() {
-    return firestore.collection('competitions').snapshots();
+    return firestore
+        .collection('competitions')
+        .orderBy('date', descending: true)
+        .snapshots();
   }
 
   void updateCompetition(String compId, Map<String, dynamic> data) {
@@ -92,7 +95,12 @@ class FirestoreProvider {
     firestore.collection('competitions').document(compId).delete();
   }
 
-  String addCompetition({String name, String organizer, String location, DateTime date, String downloadURL}) {
+  String addCompetition(
+      {String name,
+      String organizer,
+      String location,
+      DateTime date,
+      String downloadURL}) {
     CollectionReference teamsRef = firestore.collection('competitions');
     String id = uuid.v4();
     teamsRef.document(id).setData({
@@ -123,7 +131,10 @@ class FirestoreProvider {
   // Adds a schedule to the given competition.
   // Returns the id of the schedule.
   String addSchedule({String compId, String name}) {
-    CollectionReference schedulesRef = firestore.collection('competitions').document(compId).collection('schedules');
+    CollectionReference schedulesRef = firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('schedules');
     String id = uuid.v4();
     schedulesRef.document(id).setData({
       'id': id,
@@ -139,7 +150,6 @@ class FirestoreProvider {
         .collection('schedules')
         .snapshots();
   }
-
 
   void deleteSchedule({String compId, String scheduleId}) {
     firestore
