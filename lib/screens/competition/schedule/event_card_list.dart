@@ -3,13 +3,15 @@ import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/event.dart';
 import 'package:cm_flutter/widgets/event_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class EventCardList extends StatefulWidget {
   final Competition competition;
   final String scheduleId;
+  final FirebaseUser user;
 
-  EventCardList({this.competition, this.scheduleId});
+  EventCardList({this.competition, this.scheduleId, this.user});
 
   @override
   _EventCardListState createState() => _EventCardListState();
@@ -63,6 +65,7 @@ class _EventCardListState extends State<EventCardList> {
       event: event,
       scheduleId: widget.scheduleId,
       competition: widget.competition,
+      user: widget.user,
       onPressed: () {
         setState(() {});
       },

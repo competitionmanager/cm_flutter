@@ -1,9 +1,11 @@
 import 'package:cm_flutter/firebase/firestore_provider.dart';
+import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/screens/competition/view_competition_screen.dart';
 import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/date_dropdown_box.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -11,6 +13,10 @@ import 'dart:async';
 import 'dart:io';
 
 class CreateCompetitionScreen extends StatefulWidget {
+  FirebaseUser user;
+
+  CreateCompetitionScreen(this.user);
+
   @override
   _CreateCompetitionScreenState createState() =>
       _CreateCompetitionScreenState();
@@ -73,17 +79,19 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
             organizerController.text != '' &&
             locationController.text != '' &&
             competitionImage != null) {
-          String id = db.addCompetition(
+          List<String> admins = [widget.user.uid];
+          Competition comp = db.addCompetition(
             name: competitionNameController.text,
             organizer: organizerController.text,
             location: locationController.text,
             date: compDate,
             downloadURL: downloadURL,
+            admins: admins,
           );
-          if (id != null) db.uploadToFirebaseStorage(competitionImage, id);
+          if (comp.id != null) db.uploadToFirebaseStorage(competitionImage, comp.id);
           Route route = MaterialPageRoute(
             builder: (BuildContext context) =>
-                ViewCompetitionScreen(compId: id),
+                ViewCompetitionScreen(comp, widget.user),
           );
           Navigator.of(context).pushReplacement(route);
         }

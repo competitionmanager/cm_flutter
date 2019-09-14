@@ -13,6 +13,7 @@ class Competition {
   DateTime date;
   String description;
   String imageUrl;
+  List<String> admins;
 
   Competition({
     this.id,
@@ -22,6 +23,7 @@ class Competition {
     this.date,
     this.description,
     this.imageUrl,
+    this.admins,
   });
 
   factory Competition.fromMap(Map<String, dynamic> json) {
@@ -33,6 +35,7 @@ class Competition {
       date: json["date"].toDate(),
       description: json["description"],
       imageUrl: json["imageUrl"],
+      admins: json["admins"].cast<String>(),
     );
   }
 
@@ -44,6 +47,7 @@ class Competition {
         "date": date,
         "description": description,
         "imageUrl": imageUrl,
+        "admins": admins,
       };
 
   String toString() {

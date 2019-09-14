@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/screens/competition/view_competition_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CompetitionSearch extends SearchDelegate<String> {
+  final FirebaseUser user;
   FirestoreProvider db;
 
-  CompetitionSearch() {
+  CompetitionSearch(this.user) {
     db = FirestoreProvider();
   }
 
@@ -77,7 +79,7 @@ class CompetitionSearch extends SearchDelegate<String> {
       onTap: () {
         Route route = MaterialPageRoute(
           builder: (BuildContext context) =>
-              ViewCompetitionScreen(compId: comp.id),
+              ViewCompetitionScreen(comp, user),
         );
         Navigator.of(context).push(route);
       },

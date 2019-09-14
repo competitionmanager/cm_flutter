@@ -5,13 +5,16 @@ import 'package:cm_flutter/screens/competition/schedule/event_card_list.dart';
 import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/tab_item.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ScheduleView extends StatefulWidget {
   final Competition competition;
   final QuerySnapshot data;
+  final FirebaseUser user;
 
-  ScheduleView({@required this.competition, @required this.data});
+  ScheduleView(
+      {@required this.competition, @required this.data, @required this.user});
 
   @override
   _ScheduleViewState createState() => _ScheduleViewState();
@@ -36,6 +39,7 @@ class _ScheduleViewState extends State<ScheduleView> {
             child: EventCardList(
               competition: widget.competition,
               scheduleId: widget.data.documents[currentTabIndex].data['id'],
+              user: widget.user,
             ),
           ),
         ),
@@ -48,18 +52,21 @@ class _ScheduleViewState extends State<ScheduleView> {
             right: 16.0,
             bottom: 8.0,
           ),
-          child: ColorGradientButton(
-            text: 'Delete Schedule',
-            color: kWarningRed,
-            onPressed: () {
-              db.deleteSchedule(
-                compId: widget.competition.id,
-                scheduleId: widget.data.documents[currentTabIndex].data['id'],
-              );
-              setState(() {
-                currentTabIndex = 0;
-              });
-            },
+          child: Visibility(
+            child: ColorGradientButton(
+              text: 'Delete Schedule',
+              color: kWarningRed,
+              onPressed: () {
+                db.deleteSchedule(
+                  compId: widget.competition.id,
+                  scheduleId: widget.data.documents[currentTabIndex].data['id'],
+                );
+                setState(() {
+                  currentTabIndex = 0;
+                });
+              },
+            ),
+            visible: widget.competition.admins.contains(widget.user.uid),
           ),
         )
       ],

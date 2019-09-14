@@ -6,14 +6,16 @@ import 'package:cm_flutter/screens/competition/edit_competition_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/view_schedule_screen.dart';
 import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ViewCompetitionScreen extends StatefulWidget {
-  final String compId;
+  final Competition competition;
+  final FirebaseUser user;
 
-  ViewCompetitionScreen({this.compId});
+  ViewCompetitionScreen(this.competition, this.user);
 
   @override
   _ViewCompetitionScreenState createState() => _ViewCompetitionScreenState();
@@ -22,7 +24,6 @@ class ViewCompetitionScreen extends StatefulWidget {
 class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   FirestoreProvider db;
   MessageProvider messageProvider;
-  Competition competition;
 
   @override
   void initState() {
@@ -37,29 +38,18 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: StreamBuilder(
-          stream: db.getCompetitionStream(widget.compId),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return Center(child: CircularProgressIndicator());
-            } else {
-              competition = Competition.fromMap(snapshot.data.data);
-              return Stack(
-                children: <Widget>[
-                  buildScreen(context),
-                  buildAppBar(context),
-                ],
-              );
-            }
-          },
+        child: Stack(
+          children: <Widget>[
+            buildScreen(context),
+            buildAppBar(context),
+          ],
         ),
       ),
     );
   }
 
   ViewScheduleScreen buildSchedulePanel(DocumentSnapshot doc) {
-    competition = Competition.fromMap(doc.data);
-    return ViewScheduleScreen(competition: competition);
+    return ViewScheduleScreen(competition: widget.competition);
   }
 
   Row buildAppBar(BuildContext context) {
@@ -69,24 +59,28 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
         BackButton(
           color: Colors.white,
         ),
-        IconButton(
-          icon: Icon(
-            Icons.edit,
-            color: Colors.white,
+        Visibility(
+          child: IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Route route = MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    EditCompetitionScreen(competition: widget.competition),
+              );
+              Navigator.of(context).push(route);
+            },
           ),
-          onPressed: () {
-            Route route = MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  EditCompetitionScreen(competition: competition),
-            );
-            Navigator.of(context).push(route);
-          },
+          visible: widget.competition.admins.contains(widget.user.uid),
         )
       ],
     );
   }
 
   Container buildPhotoContainer(BuildContext context) {
+    Competition competition = widget.competition;
     if (competition.imageUrl == null) {
       // If image_url has not loaded yet
       return Container(
@@ -120,6 +114,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   }
 
   Widget buildScreen(BuildContext context) {
+    Competition competition = widget.competition;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -209,6 +204,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
               Route route = MaterialPageRoute(
                 builder: (BuildContext context) => ViewScheduleScreen(
                   competition: competition,
+                  user: widget.user,
                 ),
               );
               Navigator.of(context).push(route);

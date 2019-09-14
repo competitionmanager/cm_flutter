@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cm_flutter/models/competition.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
@@ -95,24 +96,36 @@ class FirestoreProvider {
     firestore.collection('competitions').document(compId).delete();
   }
 
-  String addCompetition(
+  Competition addCompetition(
       {String name,
       String organizer,
       String location,
       DateTime date,
-      String downloadURL}) {
+      String downloadURL,
+      List<String> admins}) {
     CollectionReference teamsRef = firestore.collection('competitions');
     String id = uuid.v4();
-    teamsRef.document(id).setData({
+    Map<String, dynamic> competitionData = {
       'id': id,
       'name': name,
       'organizer': organizer,
       'location': location,
       'date': date,
       'description': 'Description of the $name',
-      'imageUrl': downloadURL
-    });
-    return id;
+      'imageUrl': downloadURL,
+      'admins': admins,
+    };
+    teamsRef.document(id).setData(competitionData);
+    return Competition(
+      id: competitionData["id"],
+      name: competitionData["name"],
+      organizer: competitionData["organizer"],
+      location: competitionData["location"],
+      date: competitionData["date"],
+      description: competitionData["description"],
+      imageUrl: competitionData["imageUrl"],
+      admins: admins,
+    );
   }
 
   /* Schedule */
