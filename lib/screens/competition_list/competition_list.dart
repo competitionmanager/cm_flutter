@@ -1,39 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cm_flutter/auth/auth_provider.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/screens/competition/create_competition.dart';
 import 'package:cm_flutter/screens/competition/view_competition_screen.dart';
 import 'package:cm_flutter/screens/competition_list/competition_search.dart';
+import 'package:cm_flutter/screens/login/login_screen.dart';
 import 'package:cm_flutter/test_options_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+enum PopupEnum {
+  logout,
+}
+
 class CompetitionList extends StatefulWidget {
+  final FirebaseUser user;
+
+  CompetitionList(this.user);
+
   @override
   _CompetitionListState createState() => _CompetitionListState();
 }
 
 class _CompetitionListState extends State<CompetitionList> {
   final FirestoreProvider db = FirestoreProvider();
-  FirebaseUser user;
-
-  @override
-  void initState() {
-    super.initState();
-    initUserInfo();
-  }
-
-  void initUserInfo() async {
-    // ! TODO: Pass user information into this widget.
-    // ! We might want to render the screen differently depending on the user permission / competition privacy settings.
-    FirebaseAuth auth = FirebaseAuth.instance;
-    FirebaseUser currentUser = await auth.currentUser();
-    print(currentUser);
-    setState(() {
-      this.user = currentUser;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +44,8 @@ class _CompetitionListState extends State<CompetitionList> {
             icon: Icon(Icons.add),
             onPressed: () {
               Route route = MaterialPageRoute(
-                  builder: (BuildContext context) => CreateCompetitionScreen(this.user));
+                  builder: (BuildContext context) =>
+                      CreateCompetitionScreen(widget.user));
               Navigator.of(context).push(route);
             },
           ),
@@ -61,13 +54,28 @@ class _CompetitionListState extends State<CompetitionList> {
             onPressed: () {
               showSearch(
                 context: context,
-                delegate: CompetitionSearch(this.user),
+                delegate: CompetitionSearch(widget.user),
               );
+            },
+          ),
+          PopupMenuButton(
+            itemBuilder: (context) => <PopupMenuEntry<PopupEnum>>[
+              new PopupMenuItem<PopupEnum>(
+                  child: const Text('Logout'), value: PopupEnum.logout),
+            ],
+            offset: Offset(5, 45),
+            onSelected: (PopupEnum choice) async {
+              if (choice == PopupEnum.logout) {
+                AuthProvider authProvider = AuthProvider();
+                authProvider.signOut();
+                Route route = MaterialPageRoute(
+                    builder: (BuildContext context) => LoginScreen());
+                Navigator.of(context).pushReplacement(route);
+              }
             },
           ),
         ],
       ),
-      drawer: TestOptionsDrawer(),
       body: StreamBuilder(
         stream: db.getCompetitions(),
         builder: (context, snapshot) {
@@ -99,10 +107,11 @@ class _CompetitionListState extends State<CompetitionList> {
               db.deleteCompetition(comp.id);
             },
           ),
-          visible: comp.admins.contains(this.user.uid)),
+          visible: comp.admins.contains(widget.user.uid)),
       onTap: () {
         Route route = MaterialPageRoute(
-          builder: (BuildContext context) => ViewCompetitionScreen(comp, this.user),
+          builder: (BuildContext context) =>
+              ViewCompetitionScreen(comp, widget.user),
         );
         Navigator.of(context).push(route);
       },
