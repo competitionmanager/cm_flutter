@@ -110,8 +110,8 @@ class FirestoreProvider {
       String location,
       DateTime date,
       String imageUrl,
-      List<String> admins,
-      List<String> savedUsers}) {
+      List<dynamic> admins,
+      List<dynamic> savedUsers}) {
     CollectionReference teamsRef = firestore.collection('competitions');
     String id = uuid.v4();
     Map<String, dynamic> competitionData = {
@@ -135,7 +135,7 @@ class FirestoreProvider {
       description: competitionData["description"],
       imageUrl: competitionData["imageUrl"],
       admins: admins,
-      savedUsers: [],
+      savedUsers: competitionData['savedUsers'],
     );
   }
 
@@ -176,7 +176,7 @@ class FirestoreProvider {
     // Remove userId from savedUsers in the competition document.
     DocumentReference compRef =
         firestore.collection('competitions').document(competition.id);
-    compRef.setData({
+    compRef.updateData({
       'savedUsers': FieldValue.arrayRemove([userId])
     });
   }

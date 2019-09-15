@@ -258,16 +258,18 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
                 };
 
                 db.updateCompetition(widget.competition.id, data);
-                if (competitionImage != null) {
-                  db.uploadToFirebaseStorage(
-                      competitionImage, widget.competition.id);
-                }
-                Navigator.pop(context);
+                uploadPicture(widget.competition.id).then((result) {
+                  Navigator.pop(context);
+                });
               }
             },
           ),
         )
       ],
     );
+  }
+
+  Future<String> uploadPicture(String compId) async {
+    return await db.uploadToFirebaseStorage(competitionImage, compId);
   }
 }
