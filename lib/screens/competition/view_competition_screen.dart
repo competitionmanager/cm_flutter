@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cm_flutter/auth/auth_provider.dart';
 import 'package:cm_flutter/fcm/message_provider.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
@@ -23,6 +21,7 @@ class ViewCompetitionScreen extends StatefulWidget {
 }
 
 class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
+  Competition competition;
   FirestoreProvider db;
   MessageProvider messageProvider;
   bool isSaved = false;
@@ -30,15 +29,14 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   @override
   void initState() {
     super.initState();
+    competition = widget.competition;
     db = FirestoreProvider();
     // Allows alert dialogs to show up when notification received.
     messageProvider = MessageProvider(context: context);
 
-    if (widget.competition.savedUsers != null) {
-      setState(() {
-        isSaved = widget.competition.savedUsers.contains(widget.user.uid);
-      });
-    }
+    setState(() {
+      isSaved = widget.competition.savedUsers.contains(widget.user.uid);
+    });
   }
 
   @override
@@ -46,11 +44,15 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
-          children: <Widget>[
-            buildScreen(context),
-            buildAppBar(context),
-          ],
+        child: StreamBuilder(
+          stream: db.getCompetitionStream(competition.id),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) Center(child: CircularProgressIndicator());
+            competition = Competition.fromMap(snapshot.data.data);
+            return Stack(
+              children: <Widget>[buildScreen(context), buildAppBar(context)],
+            );
+          },
         ),
       ),
     );
@@ -74,12 +76,12 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
                 onPressed: () {
                   Route route = MaterialPageRoute(
                     builder: (BuildContext context) =>
-                        EditCompetitionScreen(competition: widget.competition),
+                        EditCompetitionScreen(competition: competition),
                   );
                   Navigator.of(context).push(route);
                 },
               ),
-              visible: widget.competition.admins.contains(widget.user.uid),
+              visible: competition.admins.contains(widget.user.uid),
             ),
             isSaved
                 ? IconButton(
@@ -88,7 +90,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
                       color: Colors.red,
                     ),
                     onPressed: () {
-                      db.unsaveCompetition(widget.competition, widget.user.uid);
+                      db.unsaveCompetition(competition, widget.user.uid);
                       setState(() {
                         isSaved = false;
                       });
@@ -100,7 +102,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
                       color: Colors.white,
                     ),
                     onPressed: () {
-                      db.saveCompetition(widget.competition, widget.user.uid);
+                      db.saveCompetition(competition, widget.user.uid);
                       setState(() {
                         isSaved = true;
                       });
@@ -113,7 +115,6 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   }
 
   Container buildPhotoContainer(BuildContext context) {
-    Competition competition = widget.competition;
     if (competition.imageUrl == null) {
       // If image_url has not loaded yet
       return Container(
@@ -150,7 +151,6 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   }
 
   Widget buildScreen(BuildContext context) {
-    Competition competition = widget.competition;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[

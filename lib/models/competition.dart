@@ -13,8 +13,8 @@ class Competition {
   DateTime date;
   String description;
   String imageUrl;
-  List<String> admins;
-  List<String> savedUsers;
+  List<dynamic> admins;
+  List<dynamic> savedUsers;
   
 
   Competition({
@@ -38,8 +38,8 @@ class Competition {
       date: json["date"].toDate(),
       description: json["description"],
       imageUrl: json["imageUrl"],
-      admins: json["admins"].cast<String>(),
-      savedUsers: json["savedUsers"].cast<String>(),
+      admins: json["admins"],
+      savedUsers: json["savedUsers"],
     );
   }
 

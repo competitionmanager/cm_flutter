@@ -79,8 +79,8 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
             organizerController.text != '' &&
             locationController.text != '' &&
             competitionImage != null) {
-          List<String> admins = [widget.user.uid];
-          List<String> savedUsers = [widget.user.uid];
+          List<dynamic> admins = [widget.user.uid];
+          List<dynamic> savedUsers = List();
           Competition comp = db.addCompetition(
             name: competitionNameController.text,
             organizer: organizerController.text,
@@ -90,7 +90,9 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
             admins: admins,
             savedUsers: savedUsers,
           );
-          await db.uploadToFirebaseStorage(competitionImage, comp.id);
+          String uploadedImageUrl = await db.uploadToFirebaseStorage(competitionImage, comp.id);
+          comp.imageUrl = uploadedImageUrl;
+          db.saveCompetition(comp, widget.user.uid);
           Route route = MaterialPageRoute(
             builder: (BuildContext context) =>
                 ViewCompetitionScreen(comp, widget.user),
