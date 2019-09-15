@@ -9,6 +9,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
+  final FirebaseUser user;
+
+  HomeScreen({this.user});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -16,22 +20,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   FirestoreProvider db;
   AuthProvider auth;
-  FirebaseUser user;
 
   @override
   void initState() {
     super.initState();
     db = FirestoreProvider();
-    auth = AuthProvider();
-    initUserInfo();
-  }
-
-  void initUserInfo() async {
-    auth.getCurrentUser().then((currentUser) {
-      setState(() {
-        user = currentUser;
-      });
-    });
   }
 
   @override
@@ -52,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               Route route = MaterialPageRoute(
                   builder: (BuildContext context) =>
-                      CreateCompetitionScreen(user));
+                      CreateCompetitionScreen(widget.user));
               Navigator.of(context).push(route);
             },
           ),
@@ -71,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontSize: 24.0),
               ),
               SizedBox(height: 16.0),
-              user != null ? buildStreamBuilder() : Container()
+              widget.user != null ? buildStreamBuilder() : Container()
               // buildSavedCompetitionList(),
             ],
           ),
@@ -82,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   StreamBuilder<QuerySnapshot> buildStreamBuilder() {
     return StreamBuilder(
-      stream: db.getSavedCompetitions(user.uid),
+      stream: db.getSavedCompetitions(widget.user.uid),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
         return Expanded(
@@ -96,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: CompetitionCard(
                   competition: comp,
-                  user: user,
+                  user: widget.user,
                 ),
               );
             },
@@ -125,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: () {
           showSearch(
             context: context,
-            delegate: CompetitionSearch(user),
+            delegate: CompetitionSearch(widget.user),
           );
         },
         child: Container(

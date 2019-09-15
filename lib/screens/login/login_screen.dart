@@ -1,6 +1,7 @@
 import 'package:cm_flutter/auth/auth_provider.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/screens/competition_list/competition_list.dart';
+import 'package:cm_flutter/screens/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -33,10 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       if (user != null) {
         Route route = MaterialPageRoute(
-                builder: (BuildContext context) => CompetitionList(user));
-            Navigator.of(context).pushReplacement(route);
-      }
-      else {
+            builder: (BuildContext context) => HomeScreen(user: user));
+        Navigator.of(context).pushReplacement(route);
+      } else {
         this.isLoading = false;
       }
     });
@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
             if (fcmToken != null) db.saveDeviceToken(fcmToken);
 
             Route route = MaterialPageRoute(
-                builder: (BuildContext context) => CompetitionList(user));
+                builder: (BuildContext context) => HomeScreen(user: user));
             Navigator.of(context).pushReplacement(route);
           }
         }
