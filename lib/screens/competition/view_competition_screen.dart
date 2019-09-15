@@ -47,8 +47,9 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
         child: StreamBuilder(
           stream: db.getCompetitionStream(competition.id),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) Center(child: CircularProgressIndicator());
-            competition = Competition.fromMap(snapshot.data.data);
+            if (snapshot.hasData) {
+              competition = Competition.fromMap(snapshot.data.data);
+            }
             return Stack(
               children: <Widget>[buildScreen(context), buildAppBar(context)],
             );
