@@ -33,8 +33,15 @@ class _ViewScheduleScreenState extends State<ViewScheduleScreen> {
         child: StreamBuilder(
           stream: db.getSchedules(widget.competition.id),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return Center(child: CircularProgressIndicator());
+            if (!snapshot.hasData || snapshot.data.documents.length == 0) {
+              return Center(
+                child: Text(
+                  'No Schedules Found :(',
+                  style: TextStyle(
+                    fontSize: 24.0,
+                  ),
+                ),
+              );
             } else {
               data = snapshot.data;
               return Column(
@@ -68,23 +75,20 @@ class _ViewScheduleScreenState extends State<ViewScheduleScreen> {
       iconTheme: IconThemeData(color: Colors.black),
       actions: <Widget>[
         Visibility(
-          child: IconButton(
-            icon: Icon(
-              Icons.add,
-              color: Colors.black,
-              size: 32.0,
+            child: IconButton(
+              icon: Icon(
+                Icons.add,
+                color: Colors.black,
+                size: 32.0,
+              ),
+              onPressed: () {
+                  buildModalBottomSheet(
+                    context,
+                    documents: data != null ? data.documents : null,
+                  );
+              },
             ),
-            onPressed: () {
-              if (data != null) {
-                buildModalBottomSheet(
-                  context,
-                  documents: data.documents,
-                );
-              }
-            },
-          ),
-          visible: widget.competition.admins.contains(widget.user.uid)
-        )
+            visible: widget.competition.admins.contains(widget.user.uid))
       ],
     );
   }

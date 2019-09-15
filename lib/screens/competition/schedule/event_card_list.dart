@@ -33,7 +33,7 @@ class _EventCardListState extends State<EventCardList> {
             children: <Widget>[
               SizedBox(height: 128.0),
               Text(
-                'No Schedules Found :(',
+                'No Events Found :(',
                 style: TextStyle(
                   fontSize: 24.0,
                 ),
