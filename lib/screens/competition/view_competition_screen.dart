@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cm_flutter/auth/auth_provider.dart';
 import 'package:cm_flutter/fcm/message_provider.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
@@ -24,6 +25,7 @@ class ViewCompetitionScreen extends StatefulWidget {
 class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   FirestoreProvider db;
   MessageProvider messageProvider;
+  bool isSaved = false;
 
   @override
   void initState() {
@@ -31,6 +33,12 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     db = FirestoreProvider();
     // Allows alert dialogs to show up when notification received.
     messageProvider = MessageProvider(context: context);
+
+    if (widget.competition.savedUsers != null) {
+      setState(() {
+        isSaved = widget.competition.savedUsers.contains(widget.user.uid);
+      });
+    }
   }
 
   @override
@@ -48,10 +56,6 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     );
   }
 
-  ViewScheduleScreen buildSchedulePanel(DocumentSnapshot doc) {
-    return ViewScheduleScreen(competition: widget.competition);
-  }
-
   Row buildAppBar(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -59,21 +63,50 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
         BackButton(
           color: Colors.white,
         ),
-        Visibility(
-          child: IconButton(
-            icon: Icon(
-              Icons.edit,
-              color: Colors.white,
+        Row(
+          children: <Widget>[
+            Visibility(
+              child: IconButton(
+                icon: Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  Route route = MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        EditCompetitionScreen(competition: widget.competition),
+                  );
+                  Navigator.of(context).push(route);
+                },
+              ),
+              visible: widget.competition.admins.contains(widget.user.uid),
             ),
-            onPressed: () {
-              Route route = MaterialPageRoute(
-                builder: (BuildContext context) =>
-                    EditCompetitionScreen(competition: widget.competition),
-              );
-              Navigator.of(context).push(route);
-            },
-          ),
-          visible: widget.competition.admins.contains(widget.user.uid),
+            isSaved
+                ? IconButton(
+                    icon: Icon(
+                      Icons.favorite,
+                      color: Colors.red,
+                    ),
+                    onPressed: () {
+                      db.unsaveCompetition(widget.competition, widget.user.uid);
+                      setState(() {
+                        isSaved = false;
+                      });
+                    },
+                  )
+                : IconButton(
+                    icon: Icon(
+                      Icons.favorite_border,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      db.saveCompetition(widget.competition, widget.user.uid);
+                      setState(() {
+                        isSaved = true;
+                      });
+                    },
+                  ),
+          ],
         )
       ],
     );
@@ -109,7 +142,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
         height: MediaQuery.of(context).size.height / 3,
         // Get image from Firebase Storage
         child: Hero(
-          tag: 'imageHero',
+          tag: widget.competition.id,
           child: Image.network(competition.imageUrl, fit: BoxFit.cover),
         ),
       );

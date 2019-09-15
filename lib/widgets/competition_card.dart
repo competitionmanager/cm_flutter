@@ -99,7 +99,7 @@ class _CompetitionCardState extends State<CompetitionCard> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(5.0),
         child: Hero(
-          tag: 'imageHero',
+          tag: widget.competition.id,
           child: Image.network(
             widget.competition.imageUrl,
             fit: BoxFit.cover,

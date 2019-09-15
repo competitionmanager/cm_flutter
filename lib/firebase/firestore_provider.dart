@@ -110,7 +110,8 @@ class FirestoreProvider {
       String location,
       DateTime date,
       String imageUrl,
-      List<String> admins}) {
+      List<String> admins,
+      List<String> savedUsers}) {
     CollectionReference teamsRef = firestore.collection('competitions');
     String id = uuid.v4();
     Map<String, dynamic> competitionData = {
@@ -122,6 +123,7 @@ class FirestoreProvider {
       'description': 'Description of the $name',
       'imageUrl': imageUrl,
       'admins': admins,
+      'savedUsers': savedUsers,
     };
     teamsRef.document(id).setData(competitionData);
     return Competition(
@@ -133,10 +135,11 @@ class FirestoreProvider {
       description: competitionData["description"],
       imageUrl: competitionData["imageUrl"],
       admins: admins,
+      savedUsers: [],
     );
   }
 
-  void saveCompetition(Competition competition) {
+  void saveCompetition(Competition competition, String userId) {
     CollectionReference usersRef = firestore.collection('users');
     Map<String, dynamic> competitionData = {
       'id': competition.id,
@@ -147,13 +150,35 @@ class FirestoreProvider {
       'description': competition.description,
       'imageUrl': competition.imageUrl,
       'admins': competition.admins,
+      'savedUsers': [userId],
     };
-    // TODO replace hard coded user id with real user id
+
+    // Save competition to a user's competition collection.
     usersRef
-        .document('9dYvUMHDEIemQXmIw4zCOygAJrJ3')
+        .document(userId)
         .collection('competitions')
         .document(competition.id)
         .setData(competitionData);
+
+    // Add userId to savedUsers in the competition document
+    DocumentReference compRef =
+        firestore.collection('competitions').document(competition.id);
+    compRef.updateData({
+      'savedUsers': FieldValue.arrayUnion([userId])
+    });
+  }
+
+  void unsaveCompetition(Competition competition, String userId) {
+    // Remove competition from user's competition collection.
+    DocumentReference userRef = firestore.collection('users').document(userId);
+    userRef.collection('competitions').document(competition.id).delete();
+
+    // Remove userId from savedUsers in the competition document.
+    DocumentReference compRef =
+        firestore.collection('competitions').document(competition.id);
+    compRef.setData({
+      'savedUsers': FieldValue.arrayRemove([userId])
+    });
   }
 
   /* Schedule */
@@ -333,7 +358,8 @@ class FirestoreProvider {
         .updateData({'token': fcmToken, 'platform': Platform.operatingSystem});
   }
 
-  Future<String> uploadToFirebaseStorage(File competitionImage, String compId) async {
+  Future<String> uploadToFirebaseStorage(
+      File competitionImage, String compId) async {
     // Randomize file name.
     String fileName = basename(competitionImage.path);
     StorageReference firebaseStorageRef =
