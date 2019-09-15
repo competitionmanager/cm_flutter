@@ -30,8 +30,7 @@ class _EventCardState extends State<EventCard> {
   @override
   void initState() {
     super.initState();
-    isEditing = widget.competition.admins.contains(widget.user.uid); // Debugging purposes for now
-
+    isEditing = widget.competition.admins.contains(widget.user.uid);
 
     // Checks if user is subscribed to the events loaded.
     List<dynamic> subscribers = widget.event.subscribers;

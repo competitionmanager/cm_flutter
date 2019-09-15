@@ -72,6 +72,9 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
       color: kWarningRed,
       onPressed: () {
         db.deleteCompetition(widget.competition.id);
+        // TODO: Change the popUntil. Need to define route names.
+        Navigator.pop(context);
+        Navigator.pop(context);
       },
     );
   }

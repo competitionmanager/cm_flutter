@@ -14,6 +14,8 @@ class Competition {
   String description;
   String imageUrl;
   List<String> admins;
+  List<String> savedUsers;
+  
 
   Competition({
     this.id,
@@ -24,6 +26,7 @@ class Competition {
     this.description,
     this.imageUrl,
     this.admins,
+    this.savedUsers,
   });
 
   factory Competition.fromMap(Map<String, dynamic> json) {
@@ -36,6 +39,7 @@ class Competition {
       description: json["description"],
       imageUrl: json["imageUrl"],
       admins: json["admins"].cast<String>(),
+      savedUsers: json["savedUsers"].cast<String>(),
     );
   }
 
@@ -48,6 +52,7 @@ class Competition {
         "description": description,
         "imageUrl": imageUrl,
         "admins": admins,
+        "savedUsers": savedUsers,
       };
 
   String toString() {
