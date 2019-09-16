@@ -1,3 +1,4 @@
+import 'package:cm_flutter/styles/colors.dart';
 import 'package:flutter/material.dart';
 
 class TabItem extends StatelessWidget {
@@ -14,8 +15,8 @@ class TabItem extends StatelessWidget {
       child: Container(
         decoration: tabIsSelected
             ? BoxDecoration(
-                color: Color.fromRGBO(0, 0, 0, 0.05),
-                borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                color: kMintyGreen,
+                borderRadius: BorderRadius.all(Radius.circular(15.0)),
               )
             : BoxDecoration(),
         child: Center(
@@ -24,8 +25,15 @@ class TabItem extends StatelessWidget {
             child: Text(
               tabText,
               style: tabIsSelected
-                  ? TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0)
-                  : TextStyle(color: Colors.black45, fontSize: 16.0),
+                  ? TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                      color: Colors.white,
+                    )
+                  : TextStyle(
+                      color: Colors.black,
+                      fontSize: 16.0,
+                    ),
             ),
           ),
         ),

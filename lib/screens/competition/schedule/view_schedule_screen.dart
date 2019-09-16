@@ -28,6 +28,7 @@ class _ViewScheduleScreenState extends State<ViewScheduleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(255, 255, 255, 0.95),
       appBar: buildAppBar(),
       body: SafeArea(
         child: StreamBuilder(

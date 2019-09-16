@@ -3,7 +3,7 @@ import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/schedule.dart';
 import 'package:cm_flutter/utils/datetime_provider.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
-import 'package:cm_flutter/widgets/create_schedule_dialog.dart';
+import 'package:cm_flutter/widgets/competition/create_schedule_dialog.dart';
 import 'package:cm_flutter/widgets/label_drop_down.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
 import 'package:cm_flutter/widgets/label_time_dropdown_box.dart';

@@ -1,6 +1,7 @@
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/styles/colors.dart';
+import 'package:cm_flutter/utils/datetime_provider.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
 import 'package:cm_flutter/widgets/date_dropdown_box.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
@@ -21,17 +22,23 @@ class EditCompetitionScreen extends StatefulWidget {
 
 class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
   FirestoreProvider db;
+  DateTimeProvider dateTime;
   Competition competition;
   TextEditingController competitionNameController;
   TextEditingController organizerController;
   TextEditingController locationController;
+  TextEditingController descriptionController;
   DateTime compDate;
   File competitionImage;
+
+  // Prevents saving multiple times
+  bool uploading = false;
 
   @override
   void initState() {
     super.initState();
     db = FirestoreProvider();
+    dateTime = DateTimeProvider();
     competition = widget.competition;
     competitionNameController = TextEditingController();
     competitionNameController.text = widget.competition.name;
@@ -39,6 +46,8 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
     organizerController.text = widget.competition.organizer;
     locationController = TextEditingController();
     locationController.text = widget.competition.location;
+    descriptionController = TextEditingController();
+    descriptionController.text = widget.competition.description;
     compDate = widget.competition.date;
   }
 
@@ -51,17 +60,65 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             buildCreateForm(),
-            Divider(color: Colors.black26),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                right: 16.0,
-                bottom: 8.0,
-              ),
-              child: buildDeleteButton(context),
-            ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Builds the description text and the text field.
+  Expanded buildCreateForm() {
+    return Expanded(
+      child: ListView(
+        children: <Widget>[
+          buildPhotoContainer(context),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                LabelTextField(
+                  labelText: 'Competition Name',
+                  textController: competitionNameController,
+                ),
+                SizedBox(height: 8.0),
+                LabelTextField(
+                  labelText: 'Organizer',
+                  textController: organizerController,
+                ),
+                SizedBox(height: 8.0),
+                LabelTextField(
+                  labelText: 'Location',
+                  textController: locationController,
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  'Date',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                DateDropdownBox(
+                  date: compDate,
+                  onTap: () {
+                    dateTime.pickDate(context, compDate).then((date) {
+                      if (date != null) {
+                        setState(() {
+                          compDate = date;
+                        });
+                      }
+                    });
+                  },
+                ),
+                SizedBox(height: 8.0),
+                Divider(color: Colors.black26),
+                SizedBox(height: 8.0),
+                buildDeleteButton(context)
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
@@ -162,70 +219,6 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
     });
   }
 
-  Future<DateTime> pickDate() async {
-    DateTime compDate = await showDatePicker(
-      context: context,
-      firstDate: DateTime.now().subtract(Duration(days: 30)),
-      lastDate: DateTime.now().add(Duration(days: 365)),
-      initialDate: DateTime.now(),
-    );
-
-    return compDate;
-  }
-
-  // Builds the description text and the text field.
-  Expanded buildCreateForm() {
-    return Expanded(
-      child: ListView(
-        children: <Widget>[
-          buildPhotoContainer(context),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                LabelTextField(
-                  labelText: 'Competition Name',
-                  textController: competitionNameController,
-                ),
-                SizedBox(height: 8.0),
-                LabelTextField(
-                  labelText: 'Organizer',
-                  textController: organizerController,
-                ),
-                SizedBox(height: 8.0),
-                LabelTextField(
-                  labelText: 'Location',
-                  textController: locationController,
-                ),
-                SizedBox(height: 8.0),
-                Text(
-                  'Date',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                DateDropdownBox(
-                  date: compDate,
-                  onTap: () {
-                    pickDate().then((date) {
-                      if (date != null) {
-                        setState(() {
-                          compDate = date;
-                        });
-                      }
-                    });
-                  },
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
   AppBar buildAppBar() {
     return AppBar(
       centerTitle: true,
@@ -245,11 +238,15 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
               Icons.check,
               size: 32.0,
             ),
-            onPressed: () {
-              if (compDate != null &&
+            onPressed: () async {
+              if (!uploading &&
+                  compDate != null &&
                   competitionNameController.text != '' &&
                   organizerController.text != '' &&
                   locationController.text != '') {
+                setState(() {
+                  uploading = true;
+                });
                 Map<String, dynamic> data = {
                   'name': competitionNameController.text,
                   'organizer': organizerController.text,
@@ -258,9 +255,10 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
                 };
 
                 db.updateCompetition(widget.competition.id, data);
-                uploadPicture(widget.competition.id).then((result) {
-                  Navigator.pop(context);
-                });
+                if (competitionImage != null) {
+                  await uploadPicture(widget.competition.id);
+                }
+                Navigator.pop(context);
               }
             },
           ),

@@ -64,7 +64,9 @@ class Competition {
     output += 'location: $location\n\t';
     output += 'date: $date\n\t';
     output += 'description: $description\n\t';
-    output += 'imageUrl: $imageUrl\n';
+    output += 'imageUrl: $imageUrl\n\t';
+    output += 'admins: $admins\n\t';
+    output += 'savedUsers: $savedUsers\n';
     output += '}\n';
     return output;
   }
