@@ -3,6 +3,7 @@ import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/screens/competition/view_competition_screen.dart';
 import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
+import 'package:cm_flutter/widgets/competition/uploading_dialog.dart';
 import 'package:cm_flutter/widgets/date_dropdown_box.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -30,6 +31,7 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
   DateTime compDate;
   File competitionImage;
   String imageUrl;
+  bool uploading = false;
 
   @override
   void initState() {
@@ -50,19 +52,24 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
     return Scaffold(
       appBar: buildAppBar(),
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Stack(
           children: <Widget>[
-            buildCreateForm(),
-            Divider(color: Colors.black26),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                right: 16.0,
-                bottom: 8.0,
-              ),
-              child: buildCreateButton(context),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                buildCreateForm(),
+                Divider(color: Colors.black26),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16.0,
+                    right: 16.0,
+                    bottom: 8.0,
+                  ),
+                  child: buildCreateButton(context),
+                ),
+              ],
             ),
+            uploading ? UploadingDialog() : Container()
           ],
         ),
       ),
@@ -79,6 +86,9 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
             organizerController.text != '' &&
             locationController.text != '' &&
             competitionImage != null) {
+          setState(() {
+            uploading = true;
+          });
           List<dynamic> admins = [widget.user.uid];
           List<dynamic> savedUsers = List();
           Competition comp = db.addCompetition(
@@ -90,7 +100,8 @@ class _CreateCompetitionScreenState extends State<CreateCompetitionScreen> {
             admins: admins,
             savedUsers: savedUsers,
           );
-          String uploadedImageUrl = await db.uploadToFirebaseStorage(competitionImage, comp.id);
+          String uploadedImageUrl =
+              await db.uploadToFirebaseStorage(competitionImage, comp.id);
           comp.imageUrl = uploadedImageUrl;
           db.saveCompetition(comp, widget.user.uid);
           Route route = MaterialPageRoute(

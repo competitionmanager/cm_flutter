@@ -30,13 +30,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(255, 255, 255, 0.95),
       appBar: AppBar(
         title: Text(
           'Competitions',
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
-        backgroundColor: Color.fromRGBO(255, 255, 255, 0.85),
+        backgroundColor: Colors.white,
         elevation: 1.0,
         iconTheme: IconThemeData(color: Colors.black),
         actions: <Widget>[
@@ -61,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: 16.0),
               Text(
                 'Saved Competitions',
-                style: TextStyle(fontSize: 24.0),
+                style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 16.0),
               widget.user != null ? buildStreamBuilder() : Container()
@@ -106,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
         SizedBox(width: 8.0),
         CircleAvatar(
           radius: 25,
-          backgroundColor: Color.fromRGBO(0, 0, 0, 0.07),
+          backgroundColor: Colors.white,
         )
       ],
     );
@@ -124,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Container(
           height: 50.0,
           decoration: BoxDecoration(
-            color: Color.fromRGBO(0, 0, 0, 0.07),
+            color: Color.fromRGBO(255, 255, 255, 1.0),
             borderRadius: BorderRadius.circular(30.0),
           ),
           child: Padding(

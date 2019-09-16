@@ -3,6 +3,7 @@ import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/utils/datetime_provider.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
+import 'package:cm_flutter/widgets/competition/uploading_dialog.dart';
 import 'package:cm_flutter/widgets/date_dropdown_box.dart';
 import 'package:cm_flutter/widgets/label_text_field.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,6 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
   DateTime compDate;
   File competitionImage;
 
-  // Prevents saving multiple times
   bool uploading = false;
 
   @override
@@ -56,10 +56,10 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
     return Scaffold(
       appBar: buildAppBar(),
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Stack(
           children: <Widget>[
             buildCreateForm(),
+            uploading ? UploadingDialog() : Container()
           ],
         ),
       ),
@@ -67,59 +67,55 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
   }
 
   // Builds the description text and the text field.
-  Expanded buildCreateForm() {
-    return Expanded(
-      child: ListView(
-        children: <Widget>[
-          buildPhotoContainer(context),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                LabelTextField(
-                  labelText: 'Competition Name',
-                  textController: competitionNameController,
+  Widget buildCreateForm() {
+    return ListView(
+      children: <Widget>[
+        buildPhotoContainer(context),
+        Padding(
+          padding: const EdgeInsets.only(top:16.0, left: 16.0, right: 16.0, bottom: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              LabelTextField(
+                labelText: 'Competition Name',
+                textController: competitionNameController,
+              ),
+              SizedBox(height: 8.0),
+              LabelTextField(
+                labelText: 'Organizer',
+                textController: organizerController,
+              ),
+              SizedBox(height: 8.0),
+              LabelTextField(
+                labelText: 'Location',
+                textController: locationController,
+              ),
+              SizedBox(height: 8.0),
+              Text(
+                'Date',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w500,
                 ),
-                SizedBox(height: 8.0),
-                LabelTextField(
-                  labelText: 'Organizer',
-                  textController: organizerController,
-                ),
-                SizedBox(height: 8.0),
-                LabelTextField(
-                  labelText: 'Location',
-                  textController: locationController,
-                ),
-                SizedBox(height: 8.0),
-                Text(
-                  'Date',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                DateDropdownBox(
-                  date: compDate,
-                  onTap: () {
-                    dateTime.pickDate(context, compDate).then((date) {
-                      if (date != null) {
-                        setState(() {
-                          compDate = date;
-                        });
-                      }
-                    });
-                  },
-                ),
-                SizedBox(height: 8.0),
-                Divider(color: Colors.black26),
-                SizedBox(height: 8.0),
-                buildDeleteButton(context)
-              ],
-            ),
-          )
-        ],
-      ),
+              ),
+              DateDropdownBox(
+                date: compDate,
+                onTap: () {
+                  dateTime.pickDate(context, compDate).then((date) {
+                    if (date != null) {
+                      setState(() {
+                        compDate = date;
+                      });
+                    }
+                  });
+                },
+              ),
+              SizedBox(height: 8.0),
+              buildDeleteButton(context)
+            ],
+          ),
+        )
+      ],
     );
   }
 
@@ -239,8 +235,7 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
               size: 32.0,
             ),
             onPressed: () async {
-              if (!uploading &&
-                  compDate != null &&
+              if (compDate != null &&
                   competitionNameController.text != '' &&
                   organizerController.text != '' &&
                   locationController.text != '') {
@@ -256,7 +251,7 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
 
                 db.updateCompetition(widget.competition.id, data);
                 if (competitionImage != null) {
-                  await uploadPicture(widget.competition.id);
+                  await db.uploadToFirebaseStorage(competitionImage, widget.competition.id);
                 }
                 Navigator.pop(context);
               }
@@ -265,9 +260,5 @@ class _EditCompetitionScreenState extends State<EditCompetitionScreen> {
         )
       ],
     );
-  }
-
-  Future<String> uploadPicture(String compId) async {
-    return await db.uploadToFirebaseStorage(competitionImage, compId);
   }
 }

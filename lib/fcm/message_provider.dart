@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 class MessageProvider {
   BuildContext context;
   final FirebaseMessaging fcm = FirebaseMessaging();
-  
+
   MessageProvider({this.context}) {
     fcmConfig(context);
   }
-  
+
   Future<String> getToken() async {
     return await fcm.getToken();
   }
@@ -19,19 +19,7 @@ class MessageProvider {
         print("onMessage: $message");
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            content: ListTile(
-              title: Text(message['notification']['title']),
-              subtitle: Text(message['notification']['body']),
-            ),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Ok'),
-                //TODO: Send user to a different screen
-                onPressed: () => Navigator.of(context).pop(),
-              )
-            ],
-          ),
+          builder: (context) => buildDialog(message)
         );
       },
       onLaunch: (Map<String, dynamic> message) async {
@@ -40,6 +28,36 @@ class MessageProvider {
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
       },
+    );
+  }
+
+  Widget buildDialog(Map<String, dynamic> message) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Container(
+        width: 180.0,
+        height: 150.0,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                message['notification']['title'],
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8.0),
+              Text(
+                message['notification']['body'],
+                style: TextStyle(fontSize: 18.0, color: Color.fromRGBO(0, 0, 0, 0.65)),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

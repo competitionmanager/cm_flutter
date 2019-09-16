@@ -36,9 +36,13 @@ class _CompetitionCardState extends State<CompetitionCard> {
         Navigator.of(context).push(route);
       },
       child: Container(
-        color: Colors.transparent, // Expands touch zone
+        height: 120.0,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15.0),
+          color: Colors.white,
+        ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             buildPhotoContainer(),
             SizedBox(width: 16.0),
@@ -46,6 +50,7 @@ class _CompetitionCardState extends State<CompetitionCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  SizedBox(height: 8.0),
                   Text(
                     widget.competition.name,
                     maxLines: 2,
@@ -82,6 +87,7 @@ class _CompetitionCardState extends State<CompetitionCard> {
                 ],
               ),
             ),
+            SizedBox(width: 16.0),
           ],
         ),
       ),
@@ -91,14 +97,14 @@ class _CompetitionCardState extends State<CompetitionCard> {
   Container buildPhotoContainer() {
     return Container(
       width: 125.0,
-      height: 100.0,
+      height: 120.0,
       decoration: BoxDecoration(
         border: Border.all(color: Color.fromRGBO(0, 0, 0, 0.1)),
-        borderRadius: BorderRadius.circular(5.0), // Clips the container border
+        borderRadius: BorderRadius.circular(15.0), // Clips the container border
         color: Colors.white,
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(5.0), // Clips the picture border
+        borderRadius: BorderRadius.circular(15.0), // Clips the picture border
         child: Hero(
           tag: widget.competition.id,
           child: Image.network(
