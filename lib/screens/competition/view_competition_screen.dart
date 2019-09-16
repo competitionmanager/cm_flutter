@@ -51,12 +51,26 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
         child: StreamBuilder(
           stream: db.getCompetitionStream(competition.id),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            if (snapshot.hasData && snapshot.data.data != null) {
               competition = Competition.fromMap(snapshot.data.data);
+              return Stack(
+                children: <Widget>[buildScreen(context), buildAppBar(context)],
+              );
+            } else {
+              return Stack(
+                children: <Widget>[
+                  BackButton(),
+                  Center(
+                    child: Text(
+                      'No Competition Found :(',
+                      style: TextStyle(
+                        fontSize: 24.0,
+                      ),
+                    ),
+                  ),
+                ],
+              );
             }
-            return Stack(
-              children: <Widget>[buildScreen(context), buildAppBar(context)],
-            );
           },
         ),
       ),
@@ -65,71 +79,78 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
 
   Widget buildScreen(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Expanded(
-          child: ListView(
-            children: <Widget>[
-              buildPhotoContainer(context),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      competition.name,
-                      style: TextStyle(
-                          fontSize: 32.0, fontWeight: FontWeight.bold),
+        Column(
+          children: <Widget>[
+            buildPhotoContainer(context),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    competition.name,
+                    style:
+                        TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 12.0),
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(fontSize: 18.0, color: Colors.black54),
+                      children: <TextSpan>[
+                        TextSpan(text: 'Hosted by '),
+                        TextSpan(
+                          text: widget.competition.organizer,
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 12.0),
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(fontSize: 18.0, color: Colors.black54),
-                        children: <TextSpan>[
-                          TextSpan(text: 'Hosted by '),
-                          TextSpan(
-                            text: widget.competition.organizer,
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ],
+                  ),
+                  SizedBox(height: 32.0),
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.date_range,
+                        color: Colors.black54,
+                        size: 28.0,
                       ),
-                    ),
-                    SizedBox(height: 32.0),
-                    Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.date_range,
-                          color: Colors.black54,
-                          size: 28.0,
-                        ),
-                        SizedBox(width: 16.0),
-                        Text(
-                          formattedDate,
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16.0),
-                    Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.location_on,
-                          color: Colors.black54,
-                          size: 28.0,
-                        ),
-                        SizedBox(width: 16.0),
-                        Text(
-                          competition.location,
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
+                      SizedBox(width: 16.0),
+                      Text(
+                        formattedDate,
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.0),
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.location_on,
+                        color: Colors.black54,
+                        size: 28.0,
+                      ),
+                      SizedBox(width: 16.0),
+                      Text(
+                        competition.location,
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
+        buildViewScheduleButton(),
+      ],
+    );
+  }
+
+  Column buildViewScheduleButton() {
+    return Column(
+      children: <Widget>[
         Divider(color: Colors.black26),
         Padding(
           padding: const EdgeInsets.only(
@@ -216,12 +237,14 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
       // If image_url has not loaded yet
       return Container(
         height: MediaQuery.of(context).size.height / 3,
+        width: double.infinity,
         color: Colors.black26,
       );
     } else if (competition.imageUrl == '') {
       // If image_url is empty
       return Container(
         height: MediaQuery.of(context).size.height / 3,
+        width: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.bottomRight,
@@ -238,6 +261,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
       return Container(
         color: Colors.black26,
         height: MediaQuery.of(context).size.height / 3,
+        width: double.infinity,
         // Get image from Firebase Storage
         child: Hero(
           tag: widget.competition.id,

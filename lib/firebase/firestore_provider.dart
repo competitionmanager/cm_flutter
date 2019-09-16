@@ -360,7 +360,7 @@ class FirestoreProvider {
 
   Future<String> uploadToFirebaseStorage(
       File competitionImage, String compId) async {
-    // Randomize file name.
+    // TODO: Randomize file name.
     String fileName = basename(competitionImage.path);
     StorageReference firebaseStorageRef =
         FirebaseStorage.instance.ref().child(fileName);
