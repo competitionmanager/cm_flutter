@@ -4,7 +4,7 @@ import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/screens/competition/create_competition.dart';
 import 'package:cm_flutter/screens/competition_list/competition_search.dart';
-import 'package:cm_flutter/widgets/competition_card.dart';
+import 'package:cm_flutter/widgets/competition/competition_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 snapshot.data.documents[index].data,
               );
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
+                padding: const EdgeInsets.only(bottom: 24.0),
                 child: CompetitionCard(
                   competition: comp,
                   user: widget.user,

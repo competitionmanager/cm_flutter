@@ -14,4 +14,16 @@ class DateTimeProvider {
       return date;
     }
   }
+
+  Future<DateTime> pickDate(BuildContext context, DateTime initialDate) async {
+    DateTime compDate = await showDatePicker(
+      context: context,
+      firstDate: DateTime.now().subtract(Duration(days: 30)),
+      lastDate: DateTime.now().add(Duration(days: 365)),
+      initialDate: initialDate,
+    );
+
+    return compDate;
+  }
+
 }

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/event.dart';
-import 'package:cm_flutter/widgets/event_card.dart';
+import 'package:cm_flutter/widgets/competition/event_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -46,10 +46,9 @@ class _EventCardListState extends State<EventCardList> {
           itemBuilder: (context, index) {
             return Column(
               children: <Widget>[
-                buildItem(snapshot.data.documents[index]),
                 Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                  child: Divider(color: Colors.black45),
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: buildItem(snapshot.data.documents[index]),
                 ),
               ],
             );

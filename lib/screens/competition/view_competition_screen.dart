@@ -25,6 +25,7 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
   FirestoreProvider db;
   MessageProvider messageProvider;
   bool isSaved = false;
+  String formattedDate;
 
   @override
   void initState() {
@@ -37,6 +38,9 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
     setState(() {
       isSaved = widget.competition.savedUsers.contains(widget.user.uid);
     });
+
+    formattedDate =
+        DateFormat('EEE, MMMM d, yyyy').format(widget.competition.date);
   }
 
   @override
@@ -56,6 +60,98 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
           },
         ),
       ),
+    );
+  }
+
+  Widget buildScreen(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Expanded(
+          child: ListView(
+            children: <Widget>[
+              buildPhotoContainer(context),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      competition.name,
+                      style: TextStyle(
+                          fontSize: 32.0, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 12.0),
+                    RichText(
+                      text: TextSpan(
+                        style: TextStyle(fontSize: 18.0, color: Colors.black54),
+                        children: <TextSpan>[
+                          TextSpan(text: 'Hosted by '),
+                          TextSpan(
+                            text: widget.competition.organizer,
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 32.0),
+                    Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.date_range,
+                          color: Colors.black54,
+                          size: 28.0,
+                        ),
+                        SizedBox(width: 16.0),
+                        Text(
+                          formattedDate,
+                          style: TextStyle(fontSize: 18.0),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                    Row(
+                      children: <Widget>[
+                        Icon(
+                          Icons.location_on,
+                          color: Colors.black54,
+                          size: 28.0,
+                        ),
+                        SizedBox(width: 16.0),
+                        Text(
+                          competition.location,
+                          style: TextStyle(fontSize: 18.0),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+        Divider(color: Colors.black26),
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            bottom: 8.0,
+          ),
+          child: ColorGradientButton(
+            color: kMintyGreen,
+            text: 'View Schedule',
+            onPressed: () {
+              Route route = MaterialPageRoute(
+                builder: (BuildContext context) => ViewScheduleScreen(
+                  competition: competition,
+                  user: widget.user,
+                ),
+              );
+              Navigator.of(context).push(route);
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -149,106 +245,5 @@ class _ViewCompetitionScreenState extends State<ViewCompetitionScreen> {
         ),
       );
     }
-  }
-
-  Widget buildScreen(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Expanded(
-          child: ListView(
-            children: <Widget>[
-              buildPhotoContainer(context),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      competition.name,
-                      style: TextStyle(
-                          fontSize: 32.0, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 12.0),
-                    Text(
-                      'Hosted by ${competition.organizer}',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    SizedBox(height: 32.0),
-                    Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.date_range,
-                          color: Colors.black26,
-                          size: 28.0,
-                        ),
-                        SizedBox(width: 16.0),
-                        Text(
-                          DateFormat('EEE, MMMM d, yyyy')
-                              .format(competition.date),
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16.0),
-                    Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.location_on,
-                          color: Colors.black26,
-                          size: 28.0,
-                        ),
-                        SizedBox(width: 16.0),
-                        Text(
-                          competition.location,
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 32.0),
-                    Text(
-                      'Description',
-                      style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 16.0),
-                    Text(
-                      competition.description,
-                      style: TextStyle(fontSize: 16.0),
-                    )
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
-        Divider(color: Colors.black26),
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-            bottom: 8.0,
-          ),
-          child: ColorGradientButton(
-            color: kMintyGreen,
-            text: 'View Schedule',
-            onPressed: () {
-              Route route = MaterialPageRoute(
-                builder: (BuildContext context) => ViewScheduleScreen(
-                  competition: competition,
-                  user: widget.user,
-                ),
-              );
-              Navigator.of(context).push(route);
-            },
-          ),
-        ),
-      ],
-    );
   }
 }
