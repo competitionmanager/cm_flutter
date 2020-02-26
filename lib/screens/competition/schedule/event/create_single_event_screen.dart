@@ -75,7 +75,7 @@ class _CreateSingleEventScreenState extends State<CreateSingleEventScreen> {
                 bottom: 8.0,
               ),
               child: ColorGradientButton(
-                text: 'Create Event',
+                text: 'Create',
                 color: kMintyGreen,
                 onPressed: () {
                   if (eventNameController.text != 'null' &&

@@ -62,7 +62,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 padding:
                     const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
                 child: ColorGradientButton(
-                  text: 'Delete Event',
+                  text: 'Delete',
                   color: kWarningRed,
                   onPressed: () {
                     db.deleteEvent(widget.competition.id, widget.scheduleId,

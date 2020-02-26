@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
+import 'package:cm_flutter/models/schedule.dart';
+import 'package:cm_flutter/screens/competition/schedule/event/create_multiple_events_screen.dart';
+import 'package:cm_flutter/screens/competition/schedule/event/create_single_event_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/event_card_list.dart';
 import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
@@ -12,9 +15,14 @@ class ScheduleView extends StatefulWidget {
   final Competition competition;
   final QuerySnapshot data;
   final FirebaseUser user;
+  final bool isEditing;
 
-  ScheduleView(
-      {@required this.competition, @required this.data, @required this.user});
+  ScheduleView({
+    @required this.competition,
+    @required this.data,
+    @required this.user,
+    @required this.isEditing,
+  });
 
   @override
   _ScheduleViewState createState() => _ScheduleViewState();
@@ -24,11 +32,78 @@ class _ScheduleViewState extends State<ScheduleView> {
   FirestoreProvider db = FirestoreProvider();
   int currentTabIndex = 0;
 
+  Future buildModalBottomSheet(BuildContext context,
+      {List<DocumentSnapshot> documents}) {
+    List<Schedule> schedules = List();
+
+    if (documents != null) {
+      for (int i = 0; i < documents.length; i++) {
+        schedules.add(Schedule.fromMap(documents[i].data));
+      }
+    }
+
+    return showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        color: Colors.white,
+        child: SafeArea(
+          child: Container(
+            color: Color(0xFF737373),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25.0),
+                  topRight: Radius.circular(25.0),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    title: Text('Create a single event'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Route route = MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            CreateSingleEventScreen(
+                          competition: widget.competition,
+                          schedules: schedules,
+                          currentTabIndex: currentTabIndex,
+                        ),
+                      );
+                      Navigator.of(context).push(route);
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Create multiple events'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Route route = MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            CreateMultipleEventsScreen(
+                          competition: widget.competition,
+                          schedules: schedules,
+                          currentTabIndex: currentTabIndex,
+                        ),
+                      );
+                      Navigator.of(context).push(route);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        buildTabView(),
+        widget.isEditing ? Container() : buildTabView(),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(
@@ -40,40 +115,11 @@ class _ScheduleViewState extends State<ScheduleView> {
               competition: widget.competition,
               scheduleId: widget.data.documents[currentTabIndex].data['id'],
               user: widget.user,
+              isEditing: widget.isEditing,
             ),
           ),
         ),
-        Visibility(
-          visible: widget.competition.admins.contains(widget.user.uid),
-          child: Column(
-            children: <Widget>[
-              Divider(
-                color: Colors.black26,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 16.0,
-                  right: 16.0,
-                  bottom: 8.0,
-                ),
-                child: ColorGradientButton(
-                  text: 'Delete Schedule',
-                  color: kWarningRed,
-                  onPressed: () {
-                    db.deleteSchedule(
-                      compId: widget.competition.id,
-                      scheduleId:
-                          widget.data.documents[currentTabIndex].data['id'],
-                    );
-                    setState(() {
-                      currentTabIndex = 0;
-                    });
-                  },
-                ),
-              )
-            ],
-          ),
-        )
+        widget.isEditing ? buildDeleteButtonBar() : buildAddButtonBar(),
       ],
     );
   }
@@ -85,8 +131,19 @@ class _ScheduleViewState extends State<ScheduleView> {
         height: 35.0,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: widget.data.documents.length,
+          itemCount: widget.data.documents.length + 1,
           itemBuilder: (BuildContext context, int index) {
+            if (index == widget.data.documents.length) {
+              return GestureDetector(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 6.0, right: 6.0),
+                  child: Icon(Icons.add),
+                ),
+                onTap: () {
+                  print("add schedule");
+                },
+              );
+            }
             return TabItem(
               tabText: widget.data.documents[index]['name'],
               tabIsSelected: index == currentTabIndex,
@@ -98,6 +155,69 @@ class _ScheduleViewState extends State<ScheduleView> {
             );
           },
         ),
+      ),
+    );
+  }
+
+  Visibility buildDeleteButtonBar() {
+    return Visibility(
+      visible: widget.competition.admins.contains(widget.user.uid),
+      child: Column(
+        children: <Widget>[
+          Divider(
+            color: Colors.black26,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              bottom: 8.0,
+            ),
+            child: ColorGradientButton(
+              text: 'Delete Schedule',
+              color: kWarningRed,
+              onPressed: () {
+                db.deleteSchedule(
+                  compId: widget.competition.id,
+                  scheduleId: widget.data.documents[currentTabIndex].data['id'],
+                );
+                setState(() {
+                  currentTabIndex = 0;
+                });
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Visibility buildAddButtonBar() {
+    return Visibility(
+      visible: widget.competition.admins.contains(widget.user.uid),
+      child: Column(
+        children: <Widget>[
+          Divider(
+            color: Colors.black26,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              bottom: 8.0,
+            ),
+            child: ColorGradientButton(
+              text: 'Create Event',
+              color: kMintyGreen,
+              onPressed: () {
+                buildModalBottomSheet(
+                  context,
+                  documents: widget.data.documents,
+                );
+              },
+            ),
+          )
+        ],
       ),
     );
   }

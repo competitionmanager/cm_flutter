@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/schedule.dart';
+import 'package:cm_flutter/screens/competition/schedule/edit_schedule_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/event/create_multiple_events_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/event/create_single_event_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/schedule_view.dart';
@@ -50,8 +51,9 @@ class _ViewScheduleScreenState extends State<ViewScheduleScreen> {
                   Expanded(
                     child: ScheduleView(
                       competition: widget.competition,
-                      data: snapshot.data,
+                      data: data,
                       user: widget.user,
+                      isEditing: false,
                     ),
                   )
                 ],
@@ -76,20 +78,24 @@ class _ViewScheduleScreenState extends State<ViewScheduleScreen> {
       iconTheme: IconThemeData(color: Colors.black),
       actions: <Widget>[
         Visibility(
-            child: IconButton(
-              icon: Icon(
-                Icons.add,
-                color: Colors.black,
-                size: 32.0,
-              ),
-              onPressed: () {
-                  buildModalBottomSheet(
-                    context,
-                    documents: data != null ? data.documents : null,
-                  );
-              },
+          child: IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: Colors.black,
+              size: 24.0,
             ),
-            visible: widget.competition.admins.contains(widget.user.uid))
+            onPressed: () {
+              Route route = MaterialPageRoute(
+                builder: (BuildContext context) => EditScheduleScreen(
+                  competition: widget.competition,
+                  user: widget.user,
+                ),
+              );
+              Navigator.of(context).push(route);
+            },
+          ),
+          visible: widget.competition.admins.contains(widget.user.uid),
+        )
       ],
     );
   }
@@ -113,11 +119,12 @@ class _ViewScheduleScreenState extends State<ViewScheduleScreen> {
             color: Color(0xFF737373),
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(25.0),
-                    topRight: Radius.circular(25.0),
-                  )),
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25.0),
+                  topRight: Radius.circular(25.0),
+                ),
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[

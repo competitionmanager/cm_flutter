@@ -14,8 +14,16 @@ class EventCard extends StatefulWidget {
   final Competition competition;
   final VoidCallback onPressed;
   final FirebaseUser user;
+  final bool isEditing;
 
-  EventCard({this.competition, this.scheduleId, this.event, this.onPressed, this.user});
+  EventCard({
+    this.competition,
+    this.scheduleId,
+    this.event,
+    this.onPressed,
+    this.user,
+    this.isEditing,
+  });
 
   @override
   _EventCardState createState() => _EventCardState();
@@ -24,14 +32,14 @@ class EventCard extends StatefulWidget {
 class _EventCardState extends State<EventCard> {
   final FirestoreProvider db = FirestoreProvider();
   final AuthProvider authProvider = AuthProvider();
-  bool isEditing = false;
 
   bool isUserSubscribed = false;
+  bool isAdmin = false;
 
   @override
   void initState() {
     super.initState();
-    isEditing = widget.competition.admins.contains(widget.user.uid);
+    isAdmin = widget.competition.admins.contains(widget.user.uid);
 
     // Checks if user is subscribed to the events loaded.
     List<dynamic> subscribers = widget.event.subscribers;
@@ -77,9 +85,7 @@ class _EventCardState extends State<EventCard> {
     return Container(
       height: 75.0,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15.0)
-      ),
+          color: Colors.white, borderRadius: BorderRadius.circular(15.0)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Row(
@@ -127,8 +133,9 @@ class _EventCardState extends State<EventCard> {
                         ],
                       ),
                     ),
-                    !isEditing
-                        ? IconButton(
+                    isAdmin
+                        ? buildAdminButton()
+                        : IconButton(
                             icon: !isUserSubscribed
                                 ? Icon(
                                     Icons.star_border,
@@ -161,7 +168,6 @@ class _EventCardState extends State<EventCard> {
                               widget.onPressed();
                             },
                           )
-                        : buildEditButton()
                   ],
                 ),
               ),
@@ -208,5 +214,13 @@ class _EventCardState extends State<EventCard> {
         Navigator.of(context).push(route);
       },
     );
+  }
+
+  Widget buildAdminButton() {
+    if (widget.isEditing) {
+      return buildEditButton();
+    } else {
+      return Container();
+    }
   }
 }
