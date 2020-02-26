@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/event.dart';
+import 'package:cm_flutter/widgets/competition/delay_option.dart';
 import 'package:cm_flutter/widgets/competition/event_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +11,14 @@ class EventCardList extends StatefulWidget {
   final Competition competition;
   final String scheduleId;
   final FirebaseUser user;
+  final bool isEditing;
 
-  EventCardList({this.competition, this.scheduleId, this.user});
+  EventCardList({
+    this.competition,
+    this.scheduleId,
+    this.user,
+    this.isEditing,
+  });
 
   @override
   _EventCardListState createState() => _EventCardListState();
@@ -48,8 +55,14 @@ class _EventCardListState extends State<EventCardList> {
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
-                  child: buildItem(snapshot.data.documents[index]),
+                  child: buildEventCard(snapshot.data.documents[index]),
                 ),
+                widget.isEditing
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: DelayOption(),
+                      )
+                    : Container(),
               ],
             );
           },
@@ -58,7 +71,7 @@ class _EventCardListState extends State<EventCardList> {
     );
   }
 
-  EventCard buildItem(DocumentSnapshot doc) {
+  EventCard buildEventCard(DocumentSnapshot doc) {
     Event event = Event.fromMap(doc.data);
     return EventCard(
       event: event,
@@ -68,6 +81,7 @@ class _EventCardListState extends State<EventCardList> {
       onPressed: () {
         setState(() {});
       },
+      isEditing: widget.isEditing,
     );
   }
 }

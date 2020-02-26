@@ -250,7 +250,7 @@ class _CreateMultipleEventsScreenState
     return AppBar(
       centerTitle: true,
       title: Text(
-        'Create Event',
+        'Create',
         style: TextStyle(color: Colors.black),
       ),
       backgroundColor: Color.fromRGBO(255, 255, 255, 0.85),
