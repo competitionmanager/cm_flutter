@@ -28,6 +28,11 @@ class _EventCardListState extends State<EventCardList> {
   final FirestoreProvider db = FirestoreProvider();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: db.getSchedule(
@@ -60,7 +65,17 @@ class _EventCardListState extends State<EventCardList> {
                 widget.isEditing
                     ? Padding(
                         padding: const EdgeInsets.only(bottom: 12.0),
-                        child: DelayOption(),
+                        child: DelayOption(
+                          competitionId: widget.competition.id,
+                          scheduleId: widget.scheduleId,
+                          documents: snapshot.data.documents,
+                          index: index,
+                          onUpdate: () {
+                            setState(() {
+                              print("setting state");
+                            });
+                          },
+                        ),
                       )
                     : Container(),
               ],
