@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
+import 'package:cm_flutter/models/event.dart';
 import 'package:cm_flutter/models/schedule.dart';
 import 'package:cm_flutter/screens/competition/schedule/event/create_multiple_events_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/event/create_single_event_screen.dart';
 import 'package:cm_flutter/screens/competition/schedule/event_card_list.dart';
 import 'package:cm_flutter/styles/colors.dart';
 import 'package:cm_flutter/widgets/color_gradient_button.dart';
+import 'package:cm_flutter/widgets/competition/create_schedule_dialog.dart';
+import 'package:cm_flutter/widgets/competition/delay_option.dart';
 import 'package:cm_flutter/widgets/tab_item.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +34,15 @@ class ScheduleView extends StatefulWidget {
 class _ScheduleViewState extends State<ScheduleView> {
   FirestoreProvider db = FirestoreProvider();
   int currentTabIndex = 0;
+
+  EventStatus eventStatus = EventStatus.noChange;
+
+  TextEditingController newScheduleNameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Future buildModalBottomSheet(BuildContext context,
       {List<DocumentSnapshot> documents}) {
@@ -103,7 +115,7 @@ class _ScheduleViewState extends State<ScheduleView> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        widget.isEditing ? Container() : buildTabView(),
+        buildTabView(),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(
@@ -116,6 +128,7 @@ class _ScheduleViewState extends State<ScheduleView> {
               scheduleId: widget.data.documents[currentTabIndex].data['id'],
               user: widget.user,
               isEditing: widget.isEditing,
+              eventStatus: eventStatus,
             ),
           ),
         ),
@@ -131,32 +144,75 @@ class _ScheduleViewState extends State<ScheduleView> {
         height: 35.0,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: widget.data.documents.length + 1,
+          // If not editing, show the add button.
+          itemCount: widget.isEditing
+              ? widget.data.documents.length
+              : widget.data.documents.length + 1,
           itemBuilder: (BuildContext context, int index) {
             if (index == widget.data.documents.length) {
-              return GestureDetector(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 6.0, right: 6.0),
-                  child: Icon(Icons.add),
-                ),
-                onTap: () {
-                  print("add schedule");
-                },
-              );
+              return buildAddScheduleButton(context);
             }
-            return TabItem(
-              tabText: widget.data.documents[index]['name'],
-              tabIsSelected: index == currentTabIndex,
-              onTabSelected: () {
-                setState(() {
-                  currentTabIndex = index;
-                });
-              },
-            );
+            return buildTabItem(index);
           },
         ),
       ),
     );
+  }
+
+  TabItem buildTabItem(int index) {
+    return TabItem(
+      tabText: widget.data.documents[index]['name'],
+      tabIsSelected: index == currentTabIndex,
+      onTabSelected: () {
+        setState(() {
+          currentTabIndex = index;
+        });
+      },
+    );
+  }
+
+  GestureDetector buildAddScheduleButton(BuildContext context) {
+    return GestureDetector(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 6.0, right: 6.0),
+        child: Icon(Icons.add),
+      ),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => CreateScheduleDialog(
+            textEditingController: newScheduleNameController,
+            onCreatePressed: () {
+              if (newScheduleNameController.text != '') {
+                db.addSchedule(
+                  compId: widget.competition.id,
+                  name: newScheduleNameController.text,
+                );
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void onEventDelayed() {
+    setState(() {
+      eventStatus = EventStatus.delayed;
+    });
+  }
+
+  void onEventAdvanced() {
+    setState(() {
+      eventStatus = EventStatus.advanced;
+    });
+  }
+
+  void onEventNoChange() {
+    setState(() {
+      eventStatus = EventStatus.noChange;
+    });
   }
 
   Visibility buildDeleteButtonBar() {
@@ -164,6 +220,11 @@ class _ScheduleViewState extends State<ScheduleView> {
       visible: widget.competition.admins.contains(widget.user.uid),
       child: Column(
         children: <Widget>[
+          DelayOption(
+            onEventAdvanced: onEventAdvanced,
+            onEventDelayed: onEventDelayed,
+            onEventNoChange: onEventNoChange,
+          ),
           Divider(
             color: Colors.black26,
           ),

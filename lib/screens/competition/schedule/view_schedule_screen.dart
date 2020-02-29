@@ -25,7 +25,7 @@ class _ViewScheduleScreenState extends State<ViewScheduleScreen> {
   List<Schedule> schedules = List();
 
   QuerySnapshot data;
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

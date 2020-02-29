@@ -19,7 +19,7 @@ class EditScheduleScreen extends StatefulWidget {
 class _EditScheduleScreenState extends State<EditScheduleScreen> {
   int currentTabIndex = 0;
   FirestoreProvider db = FirestoreProvider();
-  List<Schedule> schedules = List();
+  List<Schedule> events = List();
 
   QuerySnapshot data;
 

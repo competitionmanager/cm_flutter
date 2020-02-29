@@ -4,6 +4,8 @@ import 'package:cm_flutter/auth/auth_provider.dart';
 
 Event eventFromJson(String str) => Event.fromMap(json.decode(str));
 
+enum EventStatus { delayed, advanced, noChange }
+
 class Event {
   String name;
   DateTime startTime;
