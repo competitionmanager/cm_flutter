@@ -11,7 +11,7 @@ class TabItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTabSelected,
+      onTap: tabIsSelected ? null : onTabSelected,
       child: Container(
         decoration: tabIsSelected
             ? BoxDecoration(

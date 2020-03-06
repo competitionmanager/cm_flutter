@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
 import 'package:cm_flutter/models/event.dart';
@@ -12,6 +11,7 @@ class EventCardList extends StatefulWidget {
   final FirebaseUser user;
   final bool isEditing;
   final EventStatus eventStatus;
+  final List<EventCard> eventCards;
 
   EventCardList({
     this.competition,
@@ -19,6 +19,7 @@ class EventCardList extends StatefulWidget {
     this.user,
     this.isEditing,
     this.eventStatus,
+    this.eventCards,
   });
 
   @override
@@ -28,31 +29,48 @@ class EventCardList extends StatefulWidget {
 class _EventCardListState extends State<EventCardList> {
   final FirestoreProvider db = FirestoreProvider();
 
+  List<Event> events = List();
+
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: db.getEvents(
-        compId: widget.competition.id,
-        scheduleId: widget.scheduleId,
-      ),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data.documents.length == 0) {
+    // return StreamBuilder(
+    //   stream: db.getEventsStream(
+    //     compId: widget.competition.id,
+    //     scheduleId: widget.scheduleId,
+    //   ),
+    //   builder: (context, snapshot) {
+    //     if (!snapshot.hasData || snapshot.data.documents.length == 0) {
+    //       return Center(
+    //         child: Text(
+    //           'No Events Found :(',
+    //           style: TextStyle(
+    //             fontSize: 24.0,
+    //           ),
+    //         ),
+    //       );
+    //     } else {
+    //       return Column(
+    //         children: <Widget>[
+    //           Padding(
+    //             padding: const EdgeInsets.only(bottom: 12.0),
+    //             child: widget.eventCards[index],
+    //           ),
+    //         ],
+    //       );
+    //     }
+    //   },
+    // );
+    return ListView.builder(
+      itemCount: widget.eventCards.length,
+      itemBuilder: (context, index) {
+        if (widget.eventCards.length == 0) {
           return buildNoEventsFoundContainer();
         }
-        return buildEventCardList(snapshot);
-      },
-    );
-  }
-
-  ListView buildEventCardList(AsyncSnapshot snapshot) {
-    return ListView.builder(
-      itemCount: snapshot.data.documents.length,
-      itemBuilder: (context, index) {
         return Column(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
-              child: buildEventCard(snapshot.data.documents[index]),
+              child: widget.eventCards[index],
             ),
           ],
         );
@@ -71,21 +89,6 @@ class _EventCardListState extends State<EventCardList> {
           ),
         ),
       ],
-    );
-  }
-
-  EventCard buildEventCard(DocumentSnapshot doc) {
-    Event event = Event.fromMap(doc.data);
-    return EventCard(
-      event: event,
-      scheduleId: widget.scheduleId,
-      competition: widget.competition,
-      user: widget.user,
-      onPressed: () {
-        setState(() {});
-      },
-      isEditing: widget.isEditing,
-      eventStatus: widget.eventStatus,
     );
   }
 }

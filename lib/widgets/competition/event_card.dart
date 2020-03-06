@@ -12,20 +12,23 @@ class EventCard extends StatefulWidget {
   final Event event;
   final String scheduleId;
   final Competition competition;
-  final VoidCallback onPressed;
   final FirebaseUser user;
   final bool isEditing;
   final EventStatus eventStatus;
+  final VoidCallback onSelect;
+  final int timeChange;
 
   EventCard({
     this.competition,
     this.scheduleId,
     this.event,
-    this.onPressed,
     this.user,
     this.isEditing,
     this.eventStatus,
-  });
+    this.onSelect,
+    this.timeChange,
+    Key key
+  }) : super(key: key);
 
   @override
   _EventCardState createState() => _EventCardState();
@@ -38,6 +41,8 @@ class _EventCardState extends State<EventCard> {
   bool isUserSubscribed = false;
   bool isAdmin = false;
   bool selected = false;
+
+  Color timeTextColor = Colors.black;
 
   @override
   void initState() {
@@ -60,6 +65,23 @@ class _EventCardState extends State<EventCard> {
     }
     // If not in edit mode, select all cards.
     selected = !widget.isEditing;
+    // If time is getting changed, change it to preview.
+    // applyTimeChangePreview();
+  }
+
+  void applyTimeChangePreview() {
+    if (widget.timeChange < 0) {
+      widget.event.startTime = widget.event.startTime.subtract(Duration(minutes: widget.timeChange));
+      widget.event.endTime = widget.event.startTime.subtract(Duration(minutes: widget.timeChange));
+      timeTextColor = kWarningRed;
+    } else
+    if (widget.timeChange > 0) {
+      widget.event.startTime = widget.event.startTime.add(Duration(minutes: widget.timeChange));
+      widget.event.endTime = widget.event.endTime.add(Duration(minutes: widget.timeChange));
+      timeTextColor = kMintyGreen;
+    } else {
+      timeTextColor = Colors.black;
+    }
   }
 
   @override
@@ -80,7 +102,8 @@ class _EventCardState extends State<EventCard> {
         });
       });
     }
-    // selected = false;
+    print("update widget");
+    applyTimeChangePreview();
   }
 
   Color determineOpacity(Color color) {
@@ -118,6 +141,7 @@ class _EventCardState extends State<EventCard> {
           setState(() {
             selected = !selected;
           });
+          widget.onSelect();
         }
       },
       child: AnimatedContainer(
@@ -214,7 +238,6 @@ class _EventCardState extends State<EventCard> {
                                     isUserSubscribed = false;
                                   });
                                 }
-                                widget.onPressed();
                               },
                             )
                     ],
@@ -239,7 +262,7 @@ class _EventCardState extends State<EventCard> {
           Text(
             startTime,
             style: TextStyle(
-              color: determineOpacity(Colors.black),
+              color: selected ? timeTextColor : determineOpacity(Colors.black),
               fontSize: 16.0,
             ),
           ),
@@ -247,7 +270,7 @@ class _EventCardState extends State<EventCard> {
           Text(
             endTime,
             style: TextStyle(
-              color: determineOpacity(Colors.black),
+              color: selected ? timeTextColor : determineOpacity(Colors.black),
               fontSize: 16.0,
             ),
           ),

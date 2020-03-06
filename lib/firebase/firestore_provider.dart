@@ -220,7 +220,7 @@ class FirestoreProvider {
   /* Event */
 
   // Retrieves the events for a given schedule.
-  Stream<QuerySnapshot> getEvents({String compId, String scheduleId}) {
+  Stream<QuerySnapshot> getEventsStream({String compId, String scheduleId}) {
     return firestore
         .collection('competitions')
         .document(compId)
@@ -229,6 +229,18 @@ class FirestoreProvider {
         .collection('events')
         .orderBy('startTime')
         .snapshots();
+  }
+
+  // Retrieves the events for a given schedule.
+  Future<QuerySnapshot> getEvents({String compId, String scheduleId}) {
+    return firestore
+        .collection('competitions')
+        .document(compId)
+        .collection('schedules')
+        .document(scheduleId)
+        .collection('events')
+        .orderBy('startTime')
+        .getDocuments();
   }
 
   String addEvent(String compId, String scheduleId, String name,
@@ -283,7 +295,7 @@ class FirestoreProvider {
     }
   }
 
-  void updateEvent(String compId, String scheduleId, String eventId,
+  Future<void> updateEvent(String compId, String scheduleId, String eventId,
       String name, DateTime startTime, DateTime endTime, String description) {
     CollectionReference compEventsRef = firestore
         .collection('competitions')
@@ -291,7 +303,7 @@ class FirestoreProvider {
         .collection('schedules')
         .document(scheduleId)
         .collection('events');
-    compEventsRef.document(eventId).updateData({
+    return compEventsRef.document(eventId).updateData({
       'name': name,
       'startTime': startTime,
       'endTime': endTime,

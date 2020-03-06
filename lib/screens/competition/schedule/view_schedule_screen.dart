@@ -84,14 +84,19 @@ class _ViewScheduleScreenState extends State<ViewScheduleScreen> {
               color: Colors.black,
               size: 24.0,
             ),
-            onPressed: () {
+            onPressed: () async {
               Route route = MaterialPageRoute(
                 builder: (BuildContext context) => EditScheduleScreen(
                   competition: widget.competition,
                   user: widget.user,
                 ),
               );
-              Navigator.of(context).push(route);
+              final result = await Navigator.of(context).push(route);
+              if (result) {
+                setState(() {
+                  print("popped off");
+                });
+              }
             },
           ),
           visible: widget.competition.admins.contains(widget.user.uid),

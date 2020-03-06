@@ -3,27 +3,18 @@ import 'package:flutter/material.dart';
 class DelayOption extends StatefulWidget {
   final VoidCallback onEventDelayed;
   final VoidCallback onEventAdvanced;
-  final VoidCallback onEventNoChange;
 
-  DelayOption(
-      {this.onEventDelayed, this.onEventAdvanced, this.onEventNoChange});
+  DelayOption({
+    this.onEventDelayed,
+    this.onEventAdvanced,
+  });
 
   @override
   _DelayOptionState createState() => _DelayOptionState();
 }
 
 class _DelayOptionState extends State<DelayOption> {
-  int delayTime = 0;
-
-  void updateEventStatus() {
-    if (delayTime < 0) {
-      widget.onEventAdvanced();
-    } else if (delayTime > 0) {
-      widget.onEventDelayed();
-    } else {
-      widget.onEventNoChange();
-    }
-  }
+  int timeChange = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +46,7 @@ class _DelayOptionState extends State<DelayOption> {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Text(
-          "$delayTime min",
+          "$timeChange min",
           style: TextStyle(
             color: Colors.black,
             fontSize: 24.0,
@@ -74,9 +65,9 @@ class _DelayOptionState extends State<DelayOption> {
       ),
       onTap: () {
         setState(() {
-          delayTime++;
+          timeChange++;
         });
-        updateEventStatus();
+        widget.onEventDelayed();
       },
     );
   }
@@ -90,9 +81,9 @@ class _DelayOptionState extends State<DelayOption> {
       ),
       onTap: () {
         setState(() {
-          delayTime--;
+          timeChange--;
         });
-        updateEventStatus();
+        widget.onEventAdvanced();
       },
     );
   }
