@@ -11,14 +11,16 @@ class TabItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTabSelected,
+      onTap: tabIsSelected ? null : onTabSelected,
       child: Container(
         decoration: tabIsSelected
             ? BoxDecoration(
                 color: kMintyGreen,
                 borderRadius: BorderRadius.all(Radius.circular(15.0)),
               )
-            : BoxDecoration(),
+            : BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(15.0)),
+              ),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.only(left: 12.0, right: 12.0),

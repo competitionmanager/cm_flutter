@@ -18,7 +18,7 @@ class ColorGradientButton extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
         color: color,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
         onPressed: onPressed,
       ),
     );

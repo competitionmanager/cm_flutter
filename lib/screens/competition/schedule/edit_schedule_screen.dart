@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cm_flutter/firebase/firestore_provider.dart';
 import 'package:cm_flutter/models/competition.dart';
-import 'package:cm_flutter/models/schedule.dart';
 import 'package:cm_flutter/screens/competition/schedule/schedule_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +18,6 @@ class EditScheduleScreen extends StatefulWidget {
 class _EditScheduleScreenState extends State<EditScheduleScreen> {
   int currentTabIndex = 0;
   FirestoreProvider db = FirestoreProvider();
-  List<Schedule> schedules = List();
 
   QuerySnapshot data;
 
@@ -79,20 +77,6 @@ class _EditScheduleScreenState extends State<EditScheduleScreen> {
       ),
       elevation: 1.0,
       iconTheme: IconThemeData(color: Colors.black),
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.check,
-            color: Colors.black,
-            size: 24.0,
-          ),
-          onPressed: () {
-            // TODO: Save chanages to firebase
-            print("Save changes");
-            Navigator.pop(context);
-          },
-        ),
-      ],
     );
   }
 }
